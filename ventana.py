@@ -20,21 +20,54 @@ import tkinter as tk
 # estados de manera aleatoria (cantidad de nodos, conexiones entre los mismos, estado inicial,
 # estado final y distancias en línea recta al objetivo).
 
-ventana = tk.Tk()
-ventana.config(width=400, height=300)
-
-
-def agregar_nodo():
-    print('agregar nodo')
+contador_filas = 0
 
 
 def eliminar_nodo():
-    print('eliminar nodo')
+    global contador_filas
+    if contador_filas > 0:
+        # Obtener el widget de la última fila y destruirlo
+        for widget in ventana.grid_slaves(row=contador_filas):
+            widget.grid_forget()
+        contador_filas -= 1
+    else:
+        print('No hay mas nodos cargados')
 
 
 def cantidad_nodos(cantidad):
     print(cantidad)
 
+
+def agregar_nodo():
+    global contador_filas
+    # Convertir el número de fila en un carácter alfabético
+    etiqueta_nodo = chr(65 + contador_filas)  # 65 es el código ASCII para 'A'
+
+    # Crear y ubicar el nodo con su nombre
+    label_nodo = tk.Label(ventana, text="Nodo " +
+                          etiqueta_nodo, padx=10, pady=10)
+    label_nodo.grid(row=contador_filas+1, column=0, sticky="ew")
+
+    # Crear y ubicar el campo de entrada para la posición X
+    label_x = tk.Label(ventana, text="Posición X:")
+    label_x.grid(row=contador_filas+1, column=1, padx=10, pady=5)
+    input_x = tk.Entry(ventana)
+    input_x.grid(row=contador_filas+1, column=2, padx=10, pady=5)
+
+    # Crear y ubicar el campo de entrada para la posición Y
+    label_y = tk.Label(ventana, text="Posición Y:")
+    label_y.grid(row=contador_filas+1, column=3, padx=10, pady=5)
+    input_y = tk.Entry(ventana)
+    input_y.grid(row=contador_filas+1, column=4, padx=10, pady=5)
+
+    # Incrementar el contador de filas
+    contador_filas += 1
+
+
+ventana = tk.Tk()
+ventana.title("Trabajo Practica Final IA 1")
+# Establecer la geometría inicial de la ventana
+ventana.geometry("400x200")
 
 # MENU
 # Creo el menu de la ventana
@@ -56,26 +89,9 @@ boton_agregar_nodo = tk.Button(
 boton_eliminar_nodo = tk.Button(
     ventana, text="Eliminar Nodo", command=eliminar_nodo)
 
-boton_agregar_nodo.grid(row=0, column=1)
-boton_eliminar_nodo.grid(row=0, column=2)
+boton_agregar_nodo.grid(row=0, column=2)
+boton_eliminar_nodo.grid(row=0, column=3)
 
-# Crear y ubicar el nodo A con su nombre
-label_nodo_a = tk.Label(ventana, text="A", padx=10, pady=10)
-label_nodo_a.grid(row=1, column=0, sticky="ew")
-
-# Crear y ubicar el campo de entrada para la posición X
-label_x = tk.Label(ventana, text="Posición X:")
-label_x.grid(row=1, column=1, padx=10, pady=5)
-
-input_x = tk.Entry(ventana)
-input_x.grid(row=1, column=2, padx=10, pady=5)
-
-# Crear y ubicar el campo de entrada para la posición Y
-label_y = tk.Label(ventana, text="Posición Y:")
-label_y.grid(row=1, column=3, padx=10, pady=5)
-
-input_y = tk.Entry(ventana)
-input_y.grid(row=1, column=4, padx=10, pady=5)
 
 ventana.config(menu=menu_principal)
 
