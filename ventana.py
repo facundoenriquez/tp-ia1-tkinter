@@ -23,6 +23,7 @@ import tkinter as tk
 ventana = tk.Tk()
 ventana.config(width=400, height=300)
 
+
 def agregar_nodo():
     print('agregar nodo')
 
@@ -31,39 +32,50 @@ def eliminar_nodo():
     print('eliminar nodo')
 
 
+def cantidad_nodos(cantidad):
+    print(cantidad)
+
+
 # MENU
 # Creo el menu de la ventana
 menu_principal = tk.Menu()
 
 # Se crean las opciones principales
 menu_nodos = tk.Menu(menu_principal, tearoff=False)
-menu_ingresar_cant_nodos = tk.Menu(menu_principal, tearoff=False)
 
 # Agregar las opciones principales al menu
-menu_principal.add_cascade(label="Agregar nodo", menu=menu_nodos)
-menu_principal.add_cascade(label="Cantidad nodo",
-                           menu=menu_ingresar_cant_nodos)
+menu_principal.add_cascade(label="Nodos",
+                           menu=menu_nodos)
 
-menu_nodos.add_command(label="Agregar Nodo", command=agregar_nodo)
-menu_nodos.add_command(label="Eliminar Nodo", command=eliminar_nodo)
+menu_nodos.add_command(label="Agregar Cantidad de Nodos",
+                       command=lambda: cantidad_nodos(5))
+
+# Crear y ubicar botones de agregar y quitar nodo
+boton_agregar_nodo = tk.Button(
+    ventana, text="Agregar Nodo", command=agregar_nodo)
+boton_eliminar_nodo = tk.Button(
+    ventana, text="Eliminar Nodo", command=eliminar_nodo)
+
+boton_agregar_nodo.grid(row=0, column=1)
+boton_eliminar_nodo.grid(row=0, column=2)
 
 # Crear y ubicar el nodo A con su nombre
 label_nodo_a = tk.Label(ventana, text="A", padx=10, pady=10)
 label_nodo_a.grid(row=1, column=0, sticky="ew")
 
 # Crear y ubicar el campo de entrada para la posición X
-label_pos_x = tk.Label(ventana, text="Posición X:")
-label_pos_x.grid(row=1, column=1, padx=10, pady=5)
+label_x = tk.Label(ventana, text="Posición X:")
+label_x.grid(row=1, column=1, padx=10, pady=5)
 
-entry_pos_x = tk.Entry(ventana)
-entry_pos_x.grid(row=1, column=2, padx=10, pady=5)
+input_x = tk.Entry(ventana)
+input_x.grid(row=1, column=2, padx=10, pady=5)
 
 # Crear y ubicar el campo de entrada para la posición Y
-label_pos_y = tk.Label(ventana, text="Posición Y:")
-label_pos_y.grid(row=1, column=3, padx=10, pady=5)
+label_y = tk.Label(ventana, text="Posición Y:")
+label_y.grid(row=1, column=3, padx=10, pady=5)
 
-entry_pos_y = tk.Entry(ventana)
-entry_pos_y.grid(row=1, column=4, padx=10, pady=5)
+input_y = tk.Entry(ventana)
+input_y.grid(row=1, column=4, padx=10, pady=5)
 
 ventana.config(menu=menu_principal)
 
