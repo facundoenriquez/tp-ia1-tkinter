@@ -25,6 +25,7 @@ from ttkbootstrap.constants import *
 contador_filas = 0
 nodos = []
 
+
 def agregar_nodo(heuristica):
     global contador_filas, nodos
     if heuristica == "dlr":
@@ -63,19 +64,21 @@ def agregar_nodo(heuristica):
             ventana, selectmode=MULTIPLE, exportselection=0)
         for value in nodos:
             listbox_conexiones.insert(END, value)
-        
+
         # define a function to update the combobox when the user selects or deselects a value
         def update_combobox():
-        # Get selected values from the Listbox widget
-            selected_values = [listbox_conexiones.get(idx) for idx in listbox_conexiones.curselection()]
-                
+            # Get selected values from the Listbox widget
+            selected_values = [listbox_conexiones.get(
+                idx) for idx in listbox_conexiones.curselection()]
+
             # Update the combobox with the selected values
             combo_conexiones.configure(width=40, height=7)
             combo_conexiones.set(", ".join(selected_values))
-        
+
         # bind the update_combobox function to the Listbox widget
-        listbox_conexiones.bind("<<ListboxSelect>>", lambda _: update_combobox())
-        
+        listbox_conexiones.bind("<<ListboxSelect>>",
+                                lambda _: update_combobox())
+
         # Incrementar el contador de filas
         contador_filas += 1
 
