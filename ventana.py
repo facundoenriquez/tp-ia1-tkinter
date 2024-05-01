@@ -1,6 +1,8 @@
 from tkinter import *
 import ttkbootstrap as tb
-from ttkbootstrap.constants import *
+from PIL import Image, ImageTk
+import tkinter.messagebox as mb
+
 
 # Cada equipo de trabajo deberá desarrollar una aplicación que permita:
 
@@ -23,7 +25,7 @@ from ttkbootstrap.constants import *
 # estado final y distancias en línea recta al objetivo).
 
 contador_filas = 0
-nodos = []
+nodos = {}
 
 
 def agregar_nodo(heuristica):
@@ -37,8 +39,12 @@ def agregar_nodo(heuristica):
         # Convertir el número de fila en un carácter alfabético
         # 65 es el código ASCII para 'A'
         etiqueta_nodo = chr(65 + contador_filas)
+
         # Agrego el nodo a la lista de nodos
-        nodos.append(etiqueta_nodo)
+        nodos[etiqueta_nodo] = []
+
+        print(nodos)
+
         # Crear y ubicar el nodo con su nombre
         label_nodo = tb.Label(ventana, text="Nodo " + etiqueta_nodo)
         label_nodo.grid(row=contador_filas+2, column=0, padx=10, pady=10)
@@ -55,34 +61,33 @@ def agregar_nodo(heuristica):
         input_y = tb.Entry(ventana)
         input_y.grid(row=contador_filas+2, column=4, padx=10, pady=5)
 
-        # Creo el combo box (MenuButton) y agrego valores al mismo
-        # Crear el listbox con los nodos disponibles
-        label_conexiones = tb.Label(ventana, text="Select values:")
-        label_conexiones.grid(row=contador_filas+2, column=5, padx=10, pady=5)
-        combo_conexiones = tb.Combobox(ventana, state="readonly")
-        listbox_conexiones = Listbox(
-            ventana, selectmode=MULTIPLE, exportselection=0)
-        for value in nodos:
-            listbox_conexiones.insert(END, value)
+        # Crear y ubicar el label y combo para los conexiones de los nodos
+        nodos_combo_label = tb.Label(ventana, text="Nodos:")
+        nodos_combo_label.grid(row=contador_filas+2, column=5, padx=10, pady=5)
+        nodos_combobox = tb.Combobox(ventana, values=nodos, state="readonly")
+        nodos_combobox.grid(row=contador_filas+2, column=6, padx=10, pady=5)
 
-        # define a function to update the combobox when the user selects or deselects a value
-        def update_combobox():
-            # Get selected values from the Listbox widget
-            selected_values = [listbox_conexiones.get(
-                idx) for idx in listbox_conexiones.curselection()]
+        # Crear y ubicar los botones de agregar y eliminar nodos de la lista de conexiones
+        # button_add = tb.Button(ventana, image=plus_icon, command=plus_clicked)
+        # button_add.grid(row=contador_filas+2, column=7, padx=10, pady=5)
+        # button_remove = tb.Button(
+        #     ventana, image=minus_icon, command=minus_clicked)
+        # button_remove.grid(row=contador_filas+2, column=8, padx=10, pady=5)
 
-            # Update the combobox with the selected values
-            combo_conexiones.configure(width=40, height=7)
-            combo_conexiones.set(", ".join(selected_values))
-
-        # bind the update_combobox function to the Listbox widget
-        listbox_conexiones.bind("<<ListboxSelect>>",
-                                lambda _: update_combobox())
+        # Crear y ubicar hacia que nodos se une el nodo de la fila correspondiente
+        label_conex = tb.Label(ventana, text="Uniones:")
+        label_conex.grid(row=contador_filas+2, column=9, padx=10, pady=5)
+        label_uniones = tb.Label(ventana, text=f"{nodos[etiqueta_nodo]}")
+        label_uniones.grid(row=contador_filas+2, column=10, padx=10, pady=5)
 
         # Incrementar el contador de filas
         contador_filas += 1
 
         ajustar_ventana()
+
+
+def agregar_conexiones():
+    print("nodos")
 
 
 def eliminar_nodo():
@@ -93,7 +98,7 @@ def eliminar_nodo():
             widget.grid_forget()
         contador_filas -= 1
         # Elimino el ultimo nodo a la lista de nodos
-        nodos.pop()
+        # nodos.pop()
     else:
         print('No hay mas nodos cargados')
     if contador_filas == 0:
@@ -149,7 +154,7 @@ def limpiar_ventana():
             widget.destroy()
     # Reiniciar el contador de filas y la lista de nodos
     contador_filas = 0
-    nodos = []
+    nodos = {}
 
     # Establecer la geometría inicial de la ventana
     ventana.geometry("400x200")
@@ -165,6 +170,29 @@ def ajustar_ventana():
     # Ajustar la ventana automáticamente
     ventana.update_idletasks()
     ventana.geometry("")
+
+
+# def plus_clicked():
+#     selected_value = nodos_combobox.get()
+#     if selected_value == "":
+#         mb.showwarning(
+#             "Danger", "La conexion no puede estar vacia!", parent=ventana)
+#     elif selected_value in values:
+#         mb.showwarning(
+#             "Danger", "El nodo ya se encuentra en la lista!", parent=ventana)
+#     else:
+#         values.append(selected_value)
+#         label_uniones.config(text=values)
+#         print(values)
+
+
+# def minus_clicked():
+#     if len(values) > 0:
+#         values.pop()
+#         label_uniones.config(text=values)
+#     else:
+#         mb.showwarning(
+#             "Danger", "No hay mas nodos en la lista!", parent=ventana)
 
 
 # Instanciar la ventana
@@ -186,19 +214,21 @@ menu_principal.add_cascade(label="Heuristicas",
                            menu=menu_heuristicas)
 
 menu_heuristicas.add_command(label="Distancia en linea recta",
-                             command=lambda: distancia_recta())
+                             command=distancia_recta)
 menu_heuristicas.add_command(label="Distancia Manhattan",
-                             command=lambda: distancia_manhattan())
+                             command=distancia_manhattan)
 
-# # Crear y ubicar botones de agregar y quitar nodo
-# boton_agregar_nodo = tb.Button(
-#     ventana, text="Agregar Nodo", command=agregar_nodo)
-# boton_eliminar_nodo = tb.Button(
-#     ventana, text="Eliminar Nodo", command=eliminar_nodo)
+# Cargar Imagenes
+plus_image = Image.open("plus.png")
+minus_image = Image.open("minus.png")
 
-# boton_agregar_nodo.grid(row=0, column=2, pady=20, padx=20)
-# boton_eliminar_nodo.grid(row=0, column=3, pady=20)
+# Redimensionar imagenes
+plus_image = plus_image.resize((15, 15))
+minus_image = minus_image.resize((15, 15))
 
+# Convertir imagenes a objectos Tkinter PhotoImage
+plus_icon = ImageTk.PhotoImage(plus_image)
+minus_icon = ImageTk.PhotoImage(minus_image)
 
 # Agregar el menu a la ventana
 ventana.config(menu=menu_principal)
