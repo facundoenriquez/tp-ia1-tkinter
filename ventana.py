@@ -27,6 +27,9 @@ import tkinter.messagebox as mb
 contador_filas = 0
 nodos = {}
 comboboxes = []
+nodo_inicial = ""
+nodo_final = ""
+posiciones = {}
 
 
 def agregar_nodo(heuristica):
@@ -51,32 +54,33 @@ def agregar_nodo(heuristica):
         label_nodo.grid(row=contador_filas+2, column=0, padx=10, pady=10)
 
         # Crear y ubicar el campo de entrada para la posición X
-        label_x = tb.Label(ventana, text="Posición X:")
+        label_x = tb.Label(ventana, text="Distancia X:")
         label_x.grid(row=contador_filas+2, column=1, padx=10, pady=5)
         input_x = tb.Entry(ventana)
         input_x.grid(row=contador_filas+2, column=2, padx=10, pady=5)
 
         # Crear y ubicar el campo de entrada para la posición Y
-        label_y = tb.Label(ventana, text="Posición Y:")
+        label_y = tb.Label(ventana, text="Distancia Y:")
         label_y.grid(row=contador_filas+2, column=3, padx=10, pady=5)
         input_y = tb.Entry(ventana)
         input_y.grid(row=contador_filas+2, column=4, padx=10, pady=5)
 
+        # Agrego los inputs a una lista global de inputs
+        posiciones[etiqueta_nodo] = [input_x, input_y]
+
         # Crear y ubicar el label y combo para los conexiones de los nodos
-        nodos_combo_label = tb.Label(ventana, text="Nodos:")
+        nodos_combo_label = tb.Label(ventana, text="Conexiones:")
         nodos_combo_label.grid(row=contador_filas+2, column=5, padx=10, pady=5)
         keys = list(nodos.keys())
-        nodos_combobox = tb.Combobox(ventana, values=keys, state="readonly")
-        nodos_combobox.grid(row=contador_filas+2, column=6, padx=10, pady=5)
-
-        # Agrega el Combobox recién creado a una lista global
-        comboboxes.append(nodos_combobox)
+        nodo_combobox = tb.Combobox(ventana, values=keys, state="readonly")
+        nodo_combobox.grid(row=contador_filas+2, column=6, padx=10, pady=5)
 
         # Crear y ubicar los botones de agregar y eliminar nodos de la lista de conexiones
-        button_add = tb.Button(ventana, image=plus_icon, command=plus_clicked)
+        button_add = tb.Button(ventana, image=plus_icon, command=lambda: plus_clicked(
+            nodo_combobox, nodos[etiqueta_nodo], label_uniones, etiqueta_nodo))
         button_add.grid(row=contador_filas+2, column=7, padx=10, pady=5)
         button_remove = tb.Button(
-            ventana, image=minus_icon, command=minus_clicked)
+            ventana, image=minus_icon, command=lambda: minus_clicked(nodos[etiqueta_nodo], label_uniones))
         button_remove.grid(row=contador_filas+2, column=8, padx=10, pady=5)
 
         # Crear y ubicar hacia que nodos se une el nodo de la fila correspondiente
@@ -88,12 +92,21 @@ def agregar_nodo(heuristica):
         # Incrementar el contador de filas
         contador_filas += 1
 
+        # Agrega el Combobox recién creado a una lista global
+        comboboxes.append(nodo_combobox)
         # Actualizar todos los Combobox
         actualizar_comboboxes()
-
+        # Actualiza la lista de nodo inicial y final
+        actualizar_nodo_inicial_final()
+        # Actualizar ventana cuando cambia de heuristica
         ajustar_ventana()
 
-# Función para actualizar la lista de valores de todos los Combobox
+
+def actualizar_nodo_inicial_final():
+    global nodo_inicial, nodo_final
+    keys = list(nodos.keys())
+    nodo_inicial['values'] = keys
+    nodo_final['values'] = keys
 
 
 def actualizar_comboboxes():
@@ -138,16 +151,32 @@ def distancia_recta():
     boton_eliminar_nodo = tb.Button(
         ventana, text="Eliminar Nodo", command=lambda: eliminar_nodo("dlr"))
 
-    boton_agregar_nodo.grid(row=1, column=2, pady=20, padx=20)
-    boton_eliminar_nodo.grid(row=1, column=3, pady=20)
+    boton_agregar_nodo.grid(row=1, column=4, pady=20, padx=20)
+    boton_eliminar_nodo.grid(row=1, column=5, pady=20)
 
     # Crear y centrar el label
     crear_label_central("Distancia en línea recta")
 
 
 def distancia_manhattan():
+    global nodo_inicial, nodo_final
     print('distancia manhattan')
     limpiar_ventana()
+
+    # Crear y ubicar botones de nodo incial y final
+    keys = list(nodos.keys())
+    label_nodo_inicial = tb.Label(text="Nodo Inicial:")
+    label_nodo_final = tb.Label(text="Nodo Final:")
+    nodo_inicial = combo_nodo_inicial = tb.Combobox(
+        ventana, values=keys, state="readonly")
+    nodo_final = combo_nodo_final = tb.Combobox(
+        ventana, values=keys, state="readonly")
+
+    # Crear y ubicar el combo nodo inicial y final
+    label_nodo_inicial.grid(row=1, column=0, pady=20, padx=20)
+    label_nodo_final.grid(row=1, column=2, pady=20, padx=20)
+    combo_nodo_inicial.grid(row=1, column=1, pady=20, padx=20)
+    combo_nodo_final.grid(row=1, column=3, pady=20, padx=20)
 
     # Crear y ubicar botones de agregar y quitar nodo
     boton_agregar_nodo = tb.Button(
@@ -155,11 +184,17 @@ def distancia_manhattan():
     boton_eliminar_nodo = tb.Button(
         ventana, text="Eliminar Nodo", command=lambda: eliminar_nodo("manhattan"))
 
-    boton_agregar_nodo.grid(row=1, column=2, pady=20, padx=20)
-    boton_eliminar_nodo.grid(row=1, column=3, pady=20)
+    boton_agregar_nodo.grid(row=1, column=4, pady=20, padx=20)
+    boton_eliminar_nodo.grid(row=1, column=5, pady=20, padx=20)
+
+    # Crear y ubicar boton dibujar
+    boton_dibujar = tb.Button(ventana, text="Dibujar", command=dibujar)
+    boton_dibujar.grid(row=1, column=6, pady=20, padx=20)
 
     # Crear y centrar el label
     crear_label_central("Distancia Manhattan")
+
+    ajustar_ventana()
 
 
 def limpiar_ventana():
@@ -179,7 +214,7 @@ def limpiar_ventana():
 def crear_label_central(texto):
     font = "Helvetica"
     label_central = tb.Label(ventana, text=texto, font=(font, 15))
-    label_central.grid(row=0, column=0, columnspan=6, pady=15)
+    label_central.grid(row=0, column=0, columnspan=12, pady=15)
 
 
 def ajustar_ventana():
@@ -188,27 +223,36 @@ def ajustar_ventana():
     ventana.geometry("")
 
 
-def plus_clicked():
-    selected_value = nodos_combobox.get()
+def plus_clicked(nodo_combobox, conexiones, label_uniones, nodo_actual):
+    selected_value = nodo_combobox.get()
     if selected_value == "":
         mb.showwarning(
             "Danger", "La conexion no puede estar vacia!", parent=ventana)
-    elif selected_value in values:
+    elif selected_value in conexiones:
         mb.showwarning(
             "Danger", "El nodo ya se encuentra en la lista!", parent=ventana)
+    elif selected_value == nodo_actual:
+        mb.showwarning(
+            "Danger", "El nodo seleccionado no puede ser el mismo que el nodo de la fila!", parent=ventana)
     else:
-        values.append(selected_value)
-        label_uniones.config(text=values)
-        print(values)
+        conexiones.append(selected_value)
+        label_uniones.config(text=conexiones)
 
 
-def minus_clicked():
-    if len(values) > 0:
-        values.pop()
-        label_uniones.config(text=values)
+def minus_clicked(conexiones, label_uniones):
+    if len(conexiones) > 0:
+        conexiones.pop()
+        label_uniones.config(text=conexiones)
     else:
         mb.showwarning(
             "Danger", "No hay mas nodos en la lista!", parent=ventana)
+
+
+def dibujar():
+    print(nodo_inicial)
+    print(nodo_final)
+    print(nodos)
+    print(posiciones)
 
 
 # Instanciar la ventana
