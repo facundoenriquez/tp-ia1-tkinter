@@ -26,6 +26,7 @@ import tkinter.messagebox as mb
 
 contador_filas = 0
 nodos = {}
+comboboxes = []
 
 
 def agregar_nodo(heuristica):
@@ -64,15 +65,19 @@ def agregar_nodo(heuristica):
         # Crear y ubicar el label y combo para los conexiones de los nodos
         nodos_combo_label = tb.Label(ventana, text="Nodos:")
         nodos_combo_label.grid(row=contador_filas+2, column=5, padx=10, pady=5)
-        nodos_combobox = tb.Combobox(ventana, values=nodos, state="readonly")
+        keys = list(nodos.keys())
+        nodos_combobox = tb.Combobox(ventana, values=keys, state="readonly")
         nodos_combobox.grid(row=contador_filas+2, column=6, padx=10, pady=5)
 
+        # Agrega el Combobox recién creado a una lista global
+        comboboxes.append(nodos_combobox)
+
         # Crear y ubicar los botones de agregar y eliminar nodos de la lista de conexiones
-        # button_add = tb.Button(ventana, image=plus_icon, command=plus_clicked)
-        # button_add.grid(row=contador_filas+2, column=7, padx=10, pady=5)
-        # button_remove = tb.Button(
-        #     ventana, image=minus_icon, command=minus_clicked)
-        # button_remove.grid(row=contador_filas+2, column=8, padx=10, pady=5)
+        button_add = tb.Button(ventana, image=plus_icon, command=plus_clicked)
+        button_add.grid(row=contador_filas+2, column=7, padx=10, pady=5)
+        button_remove = tb.Button(
+            ventana, image=minus_icon, command=minus_clicked)
+        button_remove.grid(row=contador_filas+2, column=8, padx=10, pady=5)
 
         # Crear y ubicar hacia que nodos se une el nodo de la fila correspondiente
         label_conex = tb.Label(ventana, text="Uniones:")
@@ -83,7 +88,18 @@ def agregar_nodo(heuristica):
         # Incrementar el contador de filas
         contador_filas += 1
 
+        # Actualizar todos los Combobox
+        actualizar_comboboxes()
+
         ajustar_ventana()
+
+# Función para actualizar la lista de valores de todos los Combobox
+
+
+def actualizar_comboboxes():
+    keys = list(nodos.keys())
+    for combobox in comboboxes:
+        combobox['values'] = keys
 
 
 def agregar_conexiones():
@@ -172,27 +188,27 @@ def ajustar_ventana():
     ventana.geometry("")
 
 
-# def plus_clicked():
-#     selected_value = nodos_combobox.get()
-#     if selected_value == "":
-#         mb.showwarning(
-#             "Danger", "La conexion no puede estar vacia!", parent=ventana)
-#     elif selected_value in values:
-#         mb.showwarning(
-#             "Danger", "El nodo ya se encuentra en la lista!", parent=ventana)
-#     else:
-#         values.append(selected_value)
-#         label_uniones.config(text=values)
-#         print(values)
+def plus_clicked():
+    selected_value = nodos_combobox.get()
+    if selected_value == "":
+        mb.showwarning(
+            "Danger", "La conexion no puede estar vacia!", parent=ventana)
+    elif selected_value in values:
+        mb.showwarning(
+            "Danger", "El nodo ya se encuentra en la lista!", parent=ventana)
+    else:
+        values.append(selected_value)
+        label_uniones.config(text=values)
+        print(values)
 
 
-# def minus_clicked():
-#     if len(values) > 0:
-#         values.pop()
-#         label_uniones.config(text=values)
-#     else:
-#         mb.showwarning(
-#             "Danger", "No hay mas nodos en la lista!", parent=ventana)
+def minus_clicked():
+    if len(values) > 0:
+        values.pop()
+        label_uniones.config(text=values)
+    else:
+        mb.showwarning(
+            "Danger", "No hay mas nodos en la lista!", parent=ventana)
 
 
 # Instanciar la ventana
