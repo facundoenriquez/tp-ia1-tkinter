@@ -2,7 +2,8 @@ from tkinter import *
 import ttkbootstrap as tb
 from PIL import Image, ImageTk
 import tkinter.messagebox as mb
-
+from distancias_manhattan import distancias_manhattan
+from uniones_nodos_manhattan import uniones_manhattan
 
 # Cada equipo de trabajo deberá desarrollar una aplicación que permita:
 
@@ -46,8 +47,6 @@ def agregar_nodo(heuristica):
 
         # Agrego el nodo a la lista de nodos
         nodos[etiqueta_nodo] = []
-
-        print(nodos)
 
         # Crear y ubicar el nodo con su nombre
         label_nodo = tb.Label(ventana, text="Nodo " + etiqueta_nodo)
@@ -115,10 +114,6 @@ def actualizar_comboboxes():
         combobox['values'] = keys
 
 
-def agregar_conexiones():
-    print("nodos")
-
-
 def eliminar_nodo():
     global contador_filas
     if contador_filas > 0:
@@ -132,10 +127,6 @@ def eliminar_nodo():
         print('No hay mas nodos cargados')
     if contador_filas == 0:
         ventana.geometry("400x200")
-
-
-def cantidad_nodos(cantidad):
-    print(cantidad)
 
 
 def estados_aleatorios():
@@ -188,11 +179,14 @@ def distancia_manhattan():
     boton_eliminar_nodo.grid(row=1, column=5, pady=20, padx=20)
 
     # Crear y ubicar boton dibujar
-    boton_dibujar = tb.Button(ventana, text="Dibujar", command=dibujar)
+    boton_dibujar = tb.Button(ventana, text="Dibujar",
+                              command=dibujar_manhattan)
     boton_dibujar.grid(row=1, column=6, pady=20, padx=20)
 
     # Crear y centrar el label
-    crear_label_central("Distancia Manhattan")
+    label_central = tb.Label(
+        ventana, text="Distancia Manhattan", font=("Helvetica", 15))
+    label_central.grid(row=0, column=0, columnspan=12, pady=15)
 
     ajustar_ventana()
 
@@ -209,12 +203,6 @@ def limpiar_ventana():
 
     # Establecer la geometría inicial de la ventana
     ventana.geometry("400x200")
-
-
-def crear_label_central(texto):
-    font = "Helvetica"
-    label_central = tb.Label(ventana, text=texto, font=(font, 15))
-    label_central.grid(row=0, column=0, columnspan=12, pady=15)
 
 
 def ajustar_ventana():
@@ -248,12 +236,29 @@ def minus_clicked(conexiones, label_uniones):
             "Danger", "No hay mas nodos en la lista!", parent=ventana)
 
 
-def dibujar():
-    print(nodo_inicial)
-    print(nodo_final)
+def dibujar_manhattan():
+    if nodo_inicial.get() == "" or nodo_final.get() == "" or nodo_inicial.get() == nodo_final.get():
+        return mb.showwarning("Error Nodo Inicial o Final", "Los combos de nodo inicial o final no pueden estar vacios o contener el mismo nodo", parent=ventana)
+    for key, value in nodos.items():
+        if not value:
+            return mb.showwarning("Error Uniones", "Alguno de los nodos no contiene ninguna union a otro nodo", parent=ventana)
+    for key, value in posiciones.items():
+        x_value = value[0].get()
+        y_value = value[1].get()
+        if x_value == "" or y_value == "":
+            return mb.showwarning("Error Posicion X o Y", "Alguno de los campos de entradas X o Y esta vacio", parent=ventana)
+        posiciones[key] = [x_value, y_value]
     print(nodos)
-    print(posiciones)
+    distancias = distancias_manhattan(
+        nodo_final=nodo_final.get(), posiciones=posiciones)
+    uniones = uniones_manhattan(dict=nodos)
 
+    print(distancias)
+    print(uniones)
+
+
+# def filtrar_posiciones(posiciones):
+#     pass
 
 # Instanciar la ventana
 ventana = tb.Window(themename="superhero")
