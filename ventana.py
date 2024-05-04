@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 import tkinter.messagebox as mb
 from distancias_manhattan import distancias_manhattan
 from uniones_nodos_manhattan import uniones_manhattan
+from dibujar_grafo_manhattan import dibujar_grafo
 
 # Cada equipo de trabajo deberá desarrollar una aplicación que permita:
 
@@ -180,7 +181,7 @@ def distancia_manhattan():
 
     # Crear y ubicar boton dibujar
     boton_dibujar = tb.Button(ventana, text="Dibujar",
-                              command=dibujar_manhattan)
+                              command=obtener_datos_manhattan)
     boton_dibujar.grid(row=1, column=6, pady=20, padx=20)
 
     # Crear y centrar el label
@@ -236,29 +237,27 @@ def minus_clicked(conexiones, label_uniones):
             "Danger", "No hay mas nodos en la lista!", parent=ventana)
 
 
-def dibujar_manhattan():
+def obtener_datos_manhattan():
     if nodo_inicial.get() == "" or nodo_final.get() == "" or nodo_inicial.get() == nodo_final.get():
         return mb.showwarning("Error Nodo Inicial o Final", "Los combos de nodo inicial o final no pueden estar vacios o contener el mismo nodo", parent=ventana)
     for key, value in nodos.items():
         if not value:
             return mb.showwarning("Error Uniones", "Alguno de los nodos no contiene ninguna union a otro nodo", parent=ventana)
     for key, value in posiciones.items():
-        x_value = value[0].get()
-        y_value = value[1].get()
-        if x_value == "" or y_value == "":
-            return mb.showwarning("Error Posicion X o Y", "Alguno de los campos de entradas X o Y esta vacio", parent=ventana)
-        posiciones[key] = [x_value, y_value]
-    print(nodos)
+        if isinstance(value[0], Entry) and isinstance(value[1], Entry):
+            x_value = value[0].get()
+            y_value = value[1].get()
+            if x_value == "" or y_value == "":
+                return mb.showwarning("Error Posicion X o Y", "Alguno de los campos de entradas X o Y esta vacio", parent=ventana)
+            posiciones[key] = [x_value, y_value]
+            
     distancias = distancias_manhattan(
         nodo_final=nodo_final.get(), posiciones=posiciones)
+    
     uniones = uniones_manhattan(dict=nodos)
 
-    print(distancias)
-    print(uniones)
+    dibujar_grafo(nodos=nodos, distancias=distancias, uniones=uniones)
 
-
-# def filtrar_posiciones(posiciones):
-#     pass
 
 # Instanciar la ventana
 ventana = tb.Window(themename="superhero")
