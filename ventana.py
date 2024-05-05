@@ -256,7 +256,13 @@ def obtener_datos_manhattan():
     
     uniones = uniones_manhattan(dict=nodos)
 
-    dibujar_grafo(nodos=nodos, distancias=distancias, uniones=uniones)
+    print(f"Nodo inicial : {nodo_inicial.get()}")
+    print(f"Nodo Final : {nodo_final.get()}")
+    print(f"Nodos conectados : {nodos}")
+    print(f"Distancia al nodo final : {distancias}")
+    print(f"Uniones entre cada nodo : {uniones}")
+
+    # dibujar_grafo(nodos=nodos, distancias=distancias, uniones=uniones)
 
 
 # Instanciar la ventana

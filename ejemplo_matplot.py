@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import tkinter.messagebox as mb
 import networkx as nx
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -7,6 +8,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 # Definir ventana como variable global
 ventana = None
 frames = []
+
 
 
 def dibujar_arbol():
@@ -135,10 +137,10 @@ def mostrar_ventana_escalda_simple():
 
     # Botón "Paso a Paso"
     boton_paso_a_paso = ttk.Button(
-        frame_botones, text="Anterior", command=eliminar_frame)
+        frame_botones, text="Anterior", command=eliminar_frame_escalada_simple)
     boton_paso_a_paso.pack(fill="x", padx=10, pady=10)
     boton_paso_a_paso = ttk.Button(
-        frame_botones, text="Siguiente", command=lambda: insertar_frame(frame_contenido))
+        frame_botones, text="Siguiente", command=lambda: insertar_frame_escalada_simple(frame_contenido))
     boton_paso_a_paso.pack(fill="x", padx=10, pady=10)
 
     # Frame para los botones
@@ -155,7 +157,7 @@ def mostrar_ventana_escalda_simple():
     label_info.pack(fill="both", expand=True, padx=5, pady=5)
 
 
-def insertar_frame(frame_contenido):
+def insertar_frame_escalada_simple(frame_contenido):
     # Frame para los botones
     frame_info = ttk.Frame(frame_contenido, borderwidth=2, relief="solid")
     frames.append(frame_info)
@@ -170,9 +172,12 @@ def insertar_frame(frame_contenido):
     label_info.pack(fill="both", expand=True, padx=5, pady=5)
 
 
-def eliminar_frame():
+def eliminar_frame_escalada_simple():
+    if len(frames) == 0:
+        return mb.showwarning("Error Pasos", "No hay mas pasos para retroceder", parent=ventana)
     frame = frames.pop()
     frame.destroy()
+
 
 def mostrar_ventana_maxima_pendiente():
     # Crear la ventana secundaria
@@ -195,29 +200,57 @@ def mostrar_ventana_maxima_pendiente():
     canvas.draw()
     canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
 
-    # Frame para la información adicional
-    frame_info = ttk.Frame(frame_secundario, borderwidth=2, relief="solid")
-    frame_info.pack(side="right", fill="both", expand=True)
+    # Frame para la información adicional y los botones
+    frame_contenido = ttk.Frame(
+        frame_secundario, borderwidth=2, relief="solid")
+    frame_contenido.pack(side="right", fill="both")
 
-    # Frame para el botón
-    frame_botones = ttk.Frame(frame_info, borderwidth=2, relief="solid")
+    # Frame para los botones
+    frame_botones = ttk.Frame(frame_contenido, borderwidth=2, relief="solid")
     frame_botones.pack(side="top", fill="both")
 
     # Botón "Paso a Paso"
     boton_paso_a_paso = ttk.Button(
-        frame_botones, text="Anterior")
+        frame_botones, text="Anterior", command=eliminar_frame_maxima_pendiente)
     boton_paso_a_paso.pack(fill="x", padx=10, pady=10)
     boton_paso_a_paso = ttk.Button(
-        frame_botones, text="Siguiente")
+        frame_botones, text="Siguiente", command=lambda: insertar_frame_maxima_pendiente(frame_contenido))
     boton_paso_a_paso.pack(fill="x", padx=10, pady=10)
 
+    # Frame para los botones
+    frame_info = ttk.Frame(frame_contenido, borderwidth=2, relief="solid")
+    frames.append(frame_info)
+    frame_info.pack(side="top", fill="both")
+
     # Obtener información del árbol
-    info = "\nInformación adicional:\n\n- Profundidad máxima: 3\n- Nodos terminales: D, E, F, G"
+    info = "Información adicional:\n\n- Profundidad máxima: 3\n- Nodos terminales: D, E, F, G"
 
     # Label para la información adicional
     label_info = tk.Label(frame_info, text=info,
-                          justify="left", anchor="nw")
-    label_info.pack(fill="both", expand=True, padx=10, pady=10)
+                          justify="left", anchor="center")
+    label_info.pack(fill="both", expand=True, padx=5, pady=5)
+
+
+def insertar_frame_maxima_pendiente(frame_contenido):
+    # Frame para los botones
+    frame_info = ttk.Frame(frame_contenido, borderwidth=2, relief="solid")
+    frames.append(frame_info)
+    frame_info.pack(side="top", fill="both")
+
+    # Obtener información del árbol
+    info = "Información de bokita adicional:\n\n- Profundidad máxima: 3\n- Nodos terminales: D, E, F, G"
+
+    # Label para la información adicional
+    label_info = tk.Label(frame_info, text=info,
+                          justify="left", anchor="center")
+    label_info.pack(fill="both", expand=True, padx=5, pady=5)
+
+
+def eliminar_frame_maxima_pendiente():
+    if len(frames) == 0:
+        return mb.showwarning("Error Pasos", "No hay mas pasos para retroceder", parent=ventana)
+    frame = frames.pop()
+    frame.destroy()
 
 
 # Llamar a la función para crear la ventana con el árbol y la información
