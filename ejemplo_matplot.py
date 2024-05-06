@@ -8,25 +8,27 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 # Definir ventana como variable global
 ventana = None
 frames = []
-
-
+estados = []
 
 def dibujar_arbol():
     # Crear un grafo vacío
     G = nx.Graph()
 
     # Agregar nodos al grafo
-    nodos = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+    nodos = ['A', 'B', 'X', 'F', 'P', 'S']
     G.add_nodes_from(nodos)
 
     # Agregar aristas (conexiones entre nodos)
-    aristas = [('A', 'B'), ('A', 'C'), ('B', 'D'),
-               ('B', 'E'), ('C', 'F'), ('C', 'G')]
+    aristas = [
+        ('A', 'X'), ('A', 'P'), ('A', 'F'), ('A', 'S'),
+        ('X', 'B'), ('X', 'S'), ('P', 'F'), ('P', 'S'),
+        ('F', 'S'), ('S', 'B')
+    ]
     G.add_edges_from(aristas)
 
     # Dibujar el gráfico
-    pos = nx.spring_layout(G)  # Posiciones de los nodos
-
+    pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
+    
     # Crear una figura de Matplotlib
     fig = plt.figure()
     ax = fig.add_subplot(111)
