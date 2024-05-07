@@ -9,32 +9,39 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 ventana = None
 frames = []
 estados = []
+nodo_inicial = 'A'
+nodo_final = 'B'
+nodos = ['A', 'B', 'X', 'F', 'P', 'S']
+conexiones = [
+    ('A', 'X'), ('A', 'P'), ('A', 'F'), ('A', 'S'),
+    ('X', 'B'), ('X', 'S'), ('P', 'F'), ('P', 'S'),
+    ('F', 'S'), ('S', 'B')
+]
+
 
 def dibujar_arbol():
     # Crear un grafo vacío
     G = nx.Graph()
 
     # Agregar nodos al grafo
-    nodos = ['A', 'B', 'X', 'F', 'P', 'S']
     G.add_nodes_from(nodos)
 
     # Agregar aristas (conexiones entre nodos)
-    aristas = [
-        ('A', 'X'), ('A', 'P'), ('A', 'F'), ('A', 'S'),
-        ('X', 'B'), ('X', 'S'), ('P', 'F'), ('P', 'S'),
-        ('F', 'S'), ('S', 'B')
-    ]
-    G.add_edges_from(aristas)
+    G.add_edges_from(conexiones)
 
     # Dibujar el gráfico
     pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
-    
+
     # Crear una figura de Matplotlib
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
+    # Asignar colores a los nodos
+    node_colors = ['red' if node == nodo_inicial else 'green' if node ==
+                   nodo_final else 'lightblue' for node in G.nodes()]
+
     # Dibujar el grafo en la figura
-    nx.draw(G, pos, with_labels=True, node_size=1000, node_color='lightblue',
+    nx.draw(G, pos, with_labels=True, node_size=1000, node_color=node_colors,
             font_size=12, font_weight='bold', arrows=True, ax=ax)
 
     # Devolver la figura
@@ -46,7 +53,7 @@ def cerrar_ventana():
     ventana.quit()
 
 
-def crear_ventana():
+def crear_ventana_inicial():
     # Definir ventana como variable global
     global ventana
 
@@ -104,9 +111,8 @@ def crear_ventana():
     ventana.geometry("+100+100")  # Mover la ventana a una posición específica
     ventana.mainloop()
 
-# Función para crear y mostrar una ventana secundaria
 
-
+# FUNCIONES DE ESCALADA SIMPLE
 def mostrar_ventana_escalda_simple():
     # Crear la ventana secundaria
     ventana_secundaria = tk.Toplevel()
@@ -121,7 +127,7 @@ def mostrar_ventana_escalda_simple():
     frame_grafico.pack(side="left", fill="both", expand=True)
 
     # Dibujar el árbol y obtener la figura
-    fig = dibujar_arbol()
+    fig = dibujar_arbol_escalada_simple()
 
     # Agregar el gráfico a la ventana de Tkinter
     canvas = FigureCanvasTkAgg(fig, master=frame_secundario)
@@ -151,13 +157,43 @@ def mostrar_ventana_escalda_simple():
     frame_info.pack(side="top", fill="both")
 
     # Obtener información del árbol
-    info = "Información adicional:\n\n- Profundidad máxima: 3\n- Nodos terminales: D, E, F, G"
+    info = f"Información adicional:\n- Estados: {estados}"
 
     # Label para la información adicional
     label_info = tk.Label(frame_info, text=info,
                           justify="left", anchor="center")
     label_info.pack(fill="both", expand=True, padx=5, pady=5)
 
+
+def dibujar_arbol_escalada_simple():
+    if nodo_inicial == nodo_final:
+        return mb.showwarning("Se llego al objetivo", "El estado inicial es igual al estado objetivo")
+    if len(estados) == 0:
+        # Crear un grafo vacío
+        G = nx.Graph()
+
+        # Agregar nodos al grafo
+        G.add_nodes_from(nodo_inicial)
+
+        # Dibujar el gráfico
+        pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
+
+        # Crear una figura de Matplotlib
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+
+        # Dibujar el grafo en la figura
+        nx.draw(G, pos, with_labels=True, node_size=1000, node_color='red',
+                font_size=12, font_weight='bold', arrows=True, ax=ax)
+
+        estados.append(nodo_inicial)
+
+        # Devolver la figura
+        return fig
+    else:
+        estado_actual = estados[-1]
+        print(estado_actual)
+        print(estados)
 
 def insertar_frame_escalada_simple(frame_contenido):
     # Frame para los botones
@@ -166,12 +202,14 @@ def insertar_frame_escalada_simple(frame_contenido):
     frame_info.pack(side="top", fill="both")
 
     # Obtener información del árbol
-    info = "Información de bokita adicional:\n\n- Profundidad máxima: 3\n- Nodos terminales: D, E, F, G"
+    info = f"Estados:\n- {estados}"
 
     # Label para la información adicional
     label_info = tk.Label(frame_info, text=info,
                           justify="left", anchor="center")
     label_info.pack(fill="both", expand=True, padx=5, pady=5)
+
+    dibujar_arbol_escalada_simple()
 
 
 def eliminar_frame_escalada_simple():
@@ -181,6 +219,7 @@ def eliminar_frame_escalada_simple():
     frame.destroy()
 
 
+# FUNCIONES DE MAXIMA PENDIENTE
 def mostrar_ventana_maxima_pendiente():
     # Crear la ventana secundaria
     ventana_secundaria = tk.Toplevel()
@@ -256,4 +295,4 @@ def eliminar_frame_maxima_pendiente():
 
 
 # Llamar a la función para crear la ventana con el árbol y la información
-crear_ventana()
+crear_ventana_inicial()
