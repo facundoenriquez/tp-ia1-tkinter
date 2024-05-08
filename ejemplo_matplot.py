@@ -8,7 +8,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 # Definir ventana como variable global
 ventana = None
 frames = []
-estados = []
 nodo_inicial = 'A'
 nodo_final = 'B'
 nodos = ['A', 'B', 'X', 'F', 'P', 'S']
@@ -17,6 +16,15 @@ conexiones = [
     ('X', 'B'), ('X', 'S'), ('P', 'F'), ('P', 'S'),
     ('F', 'S'), ('S', 'B')
 ]
+distancias = {'A': 77, 'B': 0, 'X': 55, 'F': 12, 'P': 10, 'S': 22}
+
+
+# Datos para escalada simple
+estados_escalada_simple = []
+nuevas_conexiones_escalada_simple = []
+conexiones_escalada_simple = conexiones
+canvas_escalada_simple = None
+fig_escalada_simple = None
 
 
 def dibujar_arbol():
@@ -114,6 +122,7 @@ def crear_ventana_inicial():
 
 # FUNCIONES DE ESCALADA SIMPLE
 def mostrar_ventana_escalda_simple():
+    global estados_escalada_simple, nuevas_conexiones_escalada_simple, conexiones_escalada_simple, canvas_escalada_simple, fig_escalada_simple
     # Crear la ventana secundaria
     ventana_secundaria = tk.Toplevel()
     ventana_secundaria.title("Escalada Simple")
@@ -125,6 +134,11 @@ def mostrar_ventana_escalda_simple():
     # Frame para el gráfico
     frame_grafico = ttk.Frame(frame_secundario, borderwidth=2, relief="solid")
     frame_grafico.pack(side="left", fill="both", expand=True)
+
+    # Reiniciar la lista de estados_escalada_simple para abrir una ventana nueva
+    estados_escalada_simple = []
+    nuevas_conexiones_escalada_simple = []
+    conexiones_escalada_simple = conexiones
 
     # Dibujar el árbol y obtener la figura
     fig = dibujar_arbol_escalada_simple()
@@ -157,7 +171,7 @@ def mostrar_ventana_escalda_simple():
     frame_info.pack(side="top", fill="both")
 
     # Obtener información del árbol
-    info = f"Información adicional:\n- Estados: {estados}"
+    info = f"Información adicional:\n- Estados: {estados_escalada_simple}"
 
     # Label para la información adicional
     label_info = tk.Label(frame_info, text=info,
@@ -165,10 +179,10 @@ def mostrar_ventana_escalda_simple():
     label_info.pack(fill="both", expand=True, padx=5, pady=5)
 
 
-def dibujar_arbol_escalada_simple():
+def dibujar_arbol_escalada_simple(fig=None):
     if nodo_inicial == nodo_final:
         return mb.showwarning("Se llego al objetivo", "El estado inicial es igual al estado objetivo")
-    if len(estados) == 0:
+    if len(estados_escalada_simple) == 0:
         # Crear un grafo vacío
         G = nx.Graph()
 
@@ -178,22 +192,75 @@ def dibujar_arbol_escalada_simple():
         # Dibujar el gráfico
         pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
 
-        # Crear una figura de Matplotlib
-        fig = plt.figure()
+        # Crear una figura de Matplotlib si no se proporciona una
+        if fig is None:
+            fig = plt.figure()
+        else:
+            # Limpiar la figura existente
+            fig.clf()
+
         ax = fig.add_subplot(111)
 
         # Dibujar el grafo en la figura
         nx.draw(G, pos, with_labels=True, node_size=1000, node_color='red',
                 font_size=12, font_weight='bold', arrows=True, ax=ax)
 
-        estados.append(nodo_inicial)
+        estados_escalada_simple.append(nodo_inicial)
 
         # Devolver la figura
         return fig
     else:
-        estado_actual = estados[-1]
-        print(estado_actual)
-        print(estados)
+        # Estado actual utilizamos para marcar el camino hacia el nodo objetivo o para ver si hay algun min/max local
+        estado_actual = estados_escalada_simple[-1]
+        conex_estado_actual = [conexion[1] if conexion[0] == estado_actual else conexion[0]
+                               for conexion in conexiones_escalada_simple if estado_actual in conexion]
+        if not conex_estado_actual:
+            return mb.showwarning("Minimo Local", f"El estado {estado_actual} es un minimo local")
+        obtener_nodo_alfabeticamente = min(
+            conex_estado_actual, key=lambda x: x)
+        nueva_conexion = (estado_actual, obtener_nodo_alfabeticamente)
+        # nuevas_conexiones_escalada_simple son las aristas del grafo
+        nuevas_conexiones_escalada_simple.append(nueva_conexion)
+        if nueva_conexion in conexiones_escalada_simple:
+            conexiones_escalada_simple.remove(nueva_conexion)
+        elif (nueva_conexion[1], nueva_conexion[0]) in conexiones_escalada_simple:
+            conexiones_escalada_simple.remove(
+                (nueva_conexion[1], nueva_conexion[0]))
+        if distancias[obtener_nodo_alfabeticamente] < distancias[estado_actual]:
+            estados_escalada_simple.append(obtener_nodo_alfabeticamente)
+
+        nodos_a_graficar = [
+            nodo for conexion in nuevas_conexiones_escalada_simple for nodo in conexion]
+        nodos_a_graficar = list(set(nodos_a_graficar))
+
+        # Crear un grafo con las nuevas conexiones
+        G = nx.Graph()
+        G.add_nodes_from(nodos_a_graficar)
+        G.add_edges_from(nuevas_conexiones_escalada_simple)
+
+        print(G.nodes())
+        print(G.edges())
+
+        # Dibujar el grafo
+        pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
+
+        # Crear una figura de Matplotlib si no se proporciona una
+        if fig is None:
+            fig = plt.figure()
+        else:
+            # Limpiar la figura existente
+            fig.clf()
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        node_colors = ['red' if node ==
+                       nodo_inicial else 'lightblue' for node in G.nodes()]
+        nx.draw(G, pos, with_labels=True, node_size=1000, node_color=node_colors,
+                font_size=12, font_weight='bold', arrows=True, ax=ax)
+
+        # Devolver la nueva figura
+        return fig
+
 
 def insertar_frame_escalada_simple(frame_contenido):
     # Frame para los botones
@@ -202,7 +269,7 @@ def insertar_frame_escalada_simple(frame_contenido):
     frame_info.pack(side="top", fill="both")
 
     # Obtener información del árbol
-    info = f"Estados:\n- {estados}"
+    info = f"Estados:\n- {estados_escalada_simple}"
 
     # Label para la información adicional
     label_info = tk.Label(frame_info, text=info,
