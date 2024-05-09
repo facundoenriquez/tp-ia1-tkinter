@@ -18,11 +18,10 @@ conexiones = [
 ]
 distancias = {'A': 77, 'B': 0, 'X': 55, 'F': 12, 'P': 10, 'S': 22}
 
-
 # Datos para escalada simple
 estados_escalada_simple = []
 nuevas_conexiones_escalada_simple = []
-conexiones_escalada_simple = conexiones
+conexiones_escalada_simple = conexiones.copy()
 canvas_escalada_simple = None
 fig_escalada_simple = None
 
@@ -95,7 +94,7 @@ def crear_ventana_inicial():
 
     # Botón "Paso a Paso"
     boton_paso_a_paso = ttk.Button(
-        frame_botones, text="Metodo Escalada Simple", command=mostrar_ventana_escalda_simple)
+        frame_botones, text="Metodo Escalada Simple", command=mostrar_ventana_escalada_simple)
     boton_paso_a_paso.pack(fill="x", padx=10, pady=10)
 
     # Botón "Paso a Paso"
@@ -121,11 +120,13 @@ def crear_ventana_inicial():
 
 
 # FUNCIONES DE ESCALADA SIMPLE
-def mostrar_ventana_escalda_simple():
+def mostrar_ventana_escalada_simple():
     global estados_escalada_simple, nuevas_conexiones_escalada_simple, conexiones_escalada_simple, canvas_escalada_simple, fig_escalada_simple
-    # Crear la ventana secundaria
     ventana_secundaria = tk.Toplevel()
     ventana_secundaria.title("Escalada Simple")
+
+    # Establecer la ventana principal como maestra de la ventana secundaria
+    ventana_secundaria.transient(ventana)
 
     # Frame para el contenido de la ventana secundaria
     frame_secundario = ttk.Frame(ventana_secundaria)
@@ -138,15 +139,24 @@ def mostrar_ventana_escalda_simple():
     # Reiniciar la lista de estados_escalada_simple para abrir una ventana nueva
     estados_escalada_simple = []
     nuevas_conexiones_escalada_simple = []
-    conexiones_escalada_simple = conexiones
-
+    conexiones_escalada_simple = conexiones.copy()
+    canvas_escalada_simple = None
+    fig_escalada_simple = None
+    
     # Dibujar el árbol y obtener la figura
-    fig = dibujar_arbol_escalada_simple()
+    fig_escalada_simple = dibujar_arbol_escalada_simple()
 
-    # Agregar el gráfico a la ventana de Tkinter
-    canvas = FigureCanvasTkAgg(fig, master=frame_secundario)
-    canvas.draw()
-    canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
+    # Crear el canvas si no existe
+    if canvas_escalada_simple is None:
+        canvas_escalada_simple = FigureCanvasTkAgg(
+            fig_escalada_simple, master=frame_secundario)
+        canvas_escalada_simple.draw()
+        canvas_escalada_simple.get_tk_widget().pack(
+            side="left", fill="both", expand=True)
+    else:
+        # Actualizar el contenido del canvas
+        canvas_escalada_simple.figure = fig_escalada_simple
+        canvas_escalada_simple.draw()
 
     # Frame para la información adicional y los botones
     frame_contenido = ttk.Frame(
@@ -180,24 +190,23 @@ def mostrar_ventana_escalda_simple():
 
 
 def dibujar_arbol_escalada_simple(fig=None):
+    global G, node_colors, pos
     if nodo_inicial == nodo_final:
         return mb.showwarning("Se llego al objetivo", "El estado inicial es igual al estado objetivo")
     if len(estados_escalada_simple) == 0:
+
         # Crear un grafo vacío
         G = nx.Graph()
 
         # Agregar nodos al grafo
         G.add_nodes_from(nodo_inicial)
 
+        print(nodo_inicial)
+
         # Dibujar el gráfico
         pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
 
-        # Crear una figura de Matplotlib si no se proporciona una
-        if fig is None:
-            fig = plt.figure()
-        else:
-            # Limpiar la figura existente
-            fig.clf()
+        fig = plt.figure()
 
         ax = fig.add_subplot(111)
 
@@ -210,49 +219,75 @@ def dibujar_arbol_escalada_simple(fig=None):
         # Devolver la figura
         return fig
     else:
+
         # Estado actual utilizamos para marcar el camino hacia el nodo objetivo o para ver si hay algun min/max local
         estado_actual = estados_escalada_simple[-1]
-        conex_estado_actual = [conexion[1] if conexion[0] == estado_actual else conexion[0]
-                               for conexion in conexiones_escalada_simple if estado_actual in conexion]
+
+        conex_estado_actual = []
+        print(f"Estado actual: {estado_actual}")
+        for con in conexiones_escalada_simple:
+            if con[0] == estado_actual and con[1] not in estados_escalada_simple:
+                conex_estado_actual.append(con[1])
+            elif con[1] == estado_actual and con[0] not in estados_escalada_simple:
+                conex_estado_actual.append(con[0])
+
+        print(f"conex al estado actual: {conex_estado_actual}")
+
         if not conex_estado_actual:
-            return mb.showwarning("Minimo Local", f"El estado {estado_actual} es un minimo local")
+            ultimo_nodo = estados_escalada_simple[-1]
+            node_colors[list(G.nodes()).index(ultimo_nodo)] = 'yellow'
+            pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            nx.draw(G, pos, with_labels=True, node_size=1000, node_color=node_colors,
+                    font_size=12, font_weight='bold', arrows=True, ax=ax)
+            mb.showwarning("Minimo Local", f"El estado {estado_actual} es un minimo local")
+            return fig
+
         obtener_nodo_alfabeticamente = min(
             conex_estado_actual, key=lambda x: x)
+
+        print(f"nodo alfabeticamente: {obtener_nodo_alfabeticamente}")
+
         nueva_conexion = (estado_actual, obtener_nodo_alfabeticamente)
+        nueva_conexion_inversa = (obtener_nodo_alfabeticamente, estado_actual)
+
         # nuevas_conexiones_escalada_simple son las aristas del grafo
         nuevas_conexiones_escalada_simple.append(nueva_conexion)
+
+        print(f"nuevas conex escalada: {nuevas_conexiones_escalada_simple}")
+
         if nueva_conexion in conexiones_escalada_simple:
             conexiones_escalada_simple.remove(nueva_conexion)
-        elif (nueva_conexion[1], nueva_conexion[0]) in conexiones_escalada_simple:
-            conexiones_escalada_simple.remove(
-                (nueva_conexion[1], nueva_conexion[0]))
+        elif nueva_conexion_inversa in conexiones_escalada_simple:
+            conexiones_escalada_simple.remove(nueva_conexion_inversa)
+
+        print(f'conexiones escalada: {conexiones_escalada_simple}')
+
         if distancias[obtener_nodo_alfabeticamente] < distancias[estado_actual]:
             estados_escalada_simple.append(obtener_nodo_alfabeticamente)
+
+        print(f"estados escalada simple: {estados_escalada_simple}")
 
         nodos_a_graficar = [
             nodo for conexion in nuevas_conexiones_escalada_simple for nodo in conexion]
         nodos_a_graficar = list(set(nodos_a_graficar))
+
+        print(f"Nodos a graficar: {nodos_a_graficar}")
+        print(f"Nuevas conexiones: {nuevas_conexiones_escalada_simple} \n")
 
         # Crear un grafo con las nuevas conexiones
         G = nx.Graph()
         G.add_nodes_from(nodos_a_graficar)
         G.add_edges_from(nuevas_conexiones_escalada_simple)
 
-        print(G.nodes())
-        print(G.edges())
-
         # Dibujar el grafo
         pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
 
-        # Crear una figura de Matplotlib si no se proporciona una
-        if fig is None:
-            fig = plt.figure()
-        else:
-            # Limpiar la figura existente
-            fig.clf()
-
         fig = plt.figure()
+
         ax = fig.add_subplot(111)
+
         node_colors = ['red' if node ==
                        nodo_inicial else 'lightblue' for node in G.nodes()]
         nx.draw(G, pos, with_labels=True, node_size=1000, node_color=node_colors,
@@ -263,6 +298,8 @@ def dibujar_arbol_escalada_simple(fig=None):
 
 
 def insertar_frame_escalada_simple(frame_contenido):
+    global fig_escalada_simple, canvas_escalada_simple
+
     # Frame para los botones
     frame_info = ttk.Frame(frame_contenido, borderwidth=2, relief="solid")
     frames.append(frame_info)
@@ -276,7 +313,12 @@ def insertar_frame_escalada_simple(frame_contenido):
                           justify="left", anchor="center")
     label_info.pack(fill="both", expand=True, padx=5, pady=5)
 
-    dibujar_arbol_escalada_simple()
+    # Dibujar el árbol y obtener la figura actualizada
+    fig_escalada_simple = dibujar_arbol_escalada_simple(fig_escalada_simple)
+
+    # Actualizar la figura en el canvas
+    canvas_escalada_simple.figure = fig_escalada_simple
+    canvas_escalada_simple.draw()
 
 
 def eliminar_frame_escalada_simple():
