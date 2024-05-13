@@ -8,15 +8,11 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 # Definir ventana como variable global
 ventana = None
 frames = []
-nodo_inicial = 'A'
-nodo_final = 'B'
-nodos = ['A', 'B', 'X', 'F', 'P', 'S']
-conexiones = [
-    ('A', 'X'), ('A', 'P'), ('A', 'F'), ('A', 'S'),
-    ('X', 'B'), ('X', 'S'), ('P', 'F'), ('P', 'S'),
-    ('F', 'S'), ('S', 'B')
-]
-distancias = {'A': 77, 'B': 0, 'X': 55, 'F': 12, 'P': 10, 'S': 22}
+nodo_inicial = ""
+nodo_final = ""
+nodos = []
+conexiones = []
+distancias = {}
 
 # Datos para escalada simple
 estados_escalada_simple = []
@@ -24,6 +20,53 @@ nuevas_conexiones_escalada_simple = []
 conexiones_escalada_simple = conexiones.copy()
 canvas_escalada_simple = None
 fig_escalada_simple = None
+agregar_frames_escalada_simple = True
+
+nodo_incial_20_1 = 'A'
+nodo_final_20_1 = 'F'
+dlr_20_1 = {"A": 60, "B": 40, "C": 50, "D": 10, "E": 20, "F": 00}
+nodos_20_1 = ['A', 'B', 'C', 'D', 'E', 'F']
+uniones_20_1 = [
+    ('A', 'B'), ('A', 'E'), ('A', 'D'),
+    ('B', 'C'), ('B', 'E'), ('B', 'D'), ('B', 'F'),
+    ('C', 'D'), ('C', 'F'),
+    ('D', 'E'),
+]
+
+nodo_incial_20_2 = 'A'
+nodo_final_20_2 = 'B'
+dlr_20_2 = {"A": 77, "B": 00, "X": 55, "F": 12, "P": 10, "S": 22}
+nodos_20_2 = ['A', 'X', 'P', 'F', 'S', 'B']
+uniones_20_2 = [
+    ('A', 'X'), ('A', 'P'), ('A', 'F'), ('A', 'S'),
+    ('X', 'S'), ('X', 'B'), ('P', 'F'),
+    ('S', 'F'), ('P', 'S'), ('S', 'B'),
+]
+
+nodo_incial_20_3 = 'A'
+nodo_final_20_3 = 'G'
+dlr_20_3 = {"A": 60, "B": 40, "C": 50, "D": 10, "E": 20, "F": 15, "G": 00}
+nodos_20_3 = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+uniones_20_3 = [
+    ('A', 'B'), ('A', 'C'), ('A', 'D'), ('B', 'C'),
+    ('B', 'E'), ('B', 'G'), ('C', 'E'), ('C', 'F'),
+    ('D', 'F'), ('E', 'F'), ('E', 'G'), ('F', 'G'),
+]
+
+nodo_incial_20_5 = 'A'
+nodo_final_20_5 = 'Z'
+dlr_20_5 = {"A": 60, "B": 40, "C": 33, "D": 12, "E": 25,
+            "F": 15, "H": 22, "I": 44, "J": 11, "K": 44, "Z": 00}
+nodos_20_5 = ['A', 'B', 'C', 'D', 'E', 'F', 'H', 'I', 'J', 'K', 'Z']
+uniones_20_5 = [
+    ('A', 'E'), ('A', 'D'), ('A', 'I'),
+    ('E', 'C'), ('E', 'F'), ('E', 'H'),
+    ('C', 'B'), ('C', 'Z'), ('I', 'J'),
+    ('I', 'J'),
+    ('B', 'F'), ('D', 'F'), ('D', 'J'),
+    ('J', 'Z'), ('F', 'Z'), ('K', 'Z'),
+    ('F', 'H'), ('H', 'K'), ('H', 'Z'),
+]
 
 
 def dibujar_arbol():
@@ -60,9 +103,20 @@ def cerrar_ventana():
     ventana.quit()
 
 
-def crear_ventana_inicial():
+def crear_ventana_inicial(info):
     # Definir ventana como variable global
-    global ventana
+    global ventana, nodo_inicial, nodo_final, nodos, distancias, conexiones
+    # nodo_inicial = info["nodo_inicial"]
+    # nodo_final = info["nodo_final"]
+    # nodos = info["nodos"]
+    # distancias = info["distancias"]
+    # conexiones = info["uniones"]
+
+    nodo_inicial = nodo_incial_20_5
+    nodo_final = nodo_final_20_5
+    nodos = nodos_20_5
+    distancias = dlr_20_5
+    conexiones = uniones_20_5
 
     # Crear la ventana principal
     ventana = tk.Tk()
@@ -103,7 +157,7 @@ def crear_ventana_inicial():
     boton_paso_a_paso.pack(fill="x", padx=10, pady=10)
 
     # Obtener información del árbol
-    info = "\nInformación adicional:\n\n- Profundidad máxima: 3\n- Nodos terminales: D, E, F, G"
+    info = f"\n nodo inicial: {nodo_inicial} \n nodo final: {nodo_final}"
 
     # Label para la información adicional
     label_info = tk.Label(frame_info, text=info,
@@ -142,7 +196,7 @@ def mostrar_ventana_escalada_simple():
     conexiones_escalada_simple = conexiones.copy()
     canvas_escalada_simple = None
     fig_escalada_simple = None
-    
+
     # Dibujar el árbol y obtener la figura
     fig_escalada_simple = dibujar_arbol_escalada_simple()
 
@@ -190,10 +244,11 @@ def mostrar_ventana_escalada_simple():
 
 
 def dibujar_arbol_escalada_simple(fig=None):
-    global G, node_colors, pos
+    global G, node_colors, pos, agregar_frames_escalada_simple
     if nodo_inicial == nodo_final:
         return mb.showwarning("Se llego al objetivo", "El estado inicial es igual al estado objetivo")
     if len(estados_escalada_simple) == 0:
+        agregar_frames_escalada_simple = True
 
         # Crear un grafo vacío
         G = nx.Graph()
@@ -219,9 +274,27 @@ def dibujar_arbol_escalada_simple(fig=None):
         # Devolver la figura
         return fig
     else:
+        agregar_frames_escalada_simple = True
 
         # Estado actual utilizamos para marcar el camino hacia el nodo objetivo o para ver si hay algun min/max local
         estado_actual = estados_escalada_simple[-1]
+
+        if estado_actual == nodo_final:
+            # ultimo_nodo = estados_escalada_simple[-1]
+            # node_colors[list(G.nodes()).index(ultimo_nodo)] = 'yellow'
+            node_colors = ['red' if node ==
+                           nodo_inicial else 'lightblue' for node in G.nodes()]
+            edge_colors = ['blue' if (con[0] == nodo_final or con[1] == nodo_final) else 'black' for con in
+                           nuevas_conexiones_escalada_simple]
+            pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            nx.draw(G, pos, with_labels=True, node_size=1000, node_color=node_colors, edge_colors=edge_colors,
+                    font_size=12, font_weight='bold', arrows=True, ax=ax)
+            mb.showwarning("Objetivo Encontrado", f"El estado {
+                           estado_actual} es el objetivo")
+            agregar_frames_escalada_simple = False
+            return fig
 
         conex_estado_actual = []
         print(f"Estado actual: {estado_actual}")
@@ -241,7 +314,9 @@ def dibujar_arbol_escalada_simple(fig=None):
             ax = fig.add_subplot(111)
             nx.draw(G, pos, with_labels=True, node_size=1000, node_color=node_colors,
                     font_size=12, font_weight='bold', arrows=True, ax=ax)
-            mb.showwarning("Minimo Local", f"El estado {estado_actual} es un minimo local")
+            mb.showwarning("Minimo Local", f"El estado {
+                           estado_actual} es un minimo local")
+            agregar_frames_escalada_simple = False
             return fig
 
         obtener_nodo_alfabeticamente = min(
@@ -298,20 +373,21 @@ def dibujar_arbol_escalada_simple(fig=None):
 
 
 def insertar_frame_escalada_simple(frame_contenido):
-    global fig_escalada_simple, canvas_escalada_simple
+    global fig_escalada_simple, canvas_escalada_simple, agregar_frames_escalada_simple
 
-    # Frame para los botones
-    frame_info = ttk.Frame(frame_contenido, borderwidth=2, relief="solid")
-    frames.append(frame_info)
-    frame_info.pack(side="top", fill="both")
+    if agregar_frames_escalada_simple:
+        # Frame para los botones
+        frame_info = ttk.Frame(frame_contenido, borderwidth=2, relief="solid")
+        frames.append(frame_info)
+        frame_info.pack(side="top", fill="both")
 
-    # Obtener información del árbol
-    info = f"Estados:\n- {estados_escalada_simple}"
+        # Obtener información del árbol
+        info = f"Estados:\n- {estados_escalada_simple}"
 
-    # Label para la información adicional
-    label_info = tk.Label(frame_info, text=info,
-                          justify="left", anchor="center")
-    label_info.pack(fill="both", expand=True, padx=5, pady=5)
+        # Label para la información adicional
+        label_info = tk.Label(frame_info, text=info,
+                              justify="left", anchor="center")
+        label_info.pack(fill="both", expand=True, padx=5, pady=5)
 
     # Dibujar el árbol y obtener la figura actualizada
     fig_escalada_simple = dibujar_arbol_escalada_simple(fig_escalada_simple)
@@ -404,4 +480,4 @@ def eliminar_frame_maxima_pendiente():
 
 
 # Llamar a la función para crear la ventana con el árbol y la información
-crear_ventana_inicial()
+# crear_ventana_inicial(info)

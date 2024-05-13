@@ -1,10 +1,10 @@
-from tkinter import *
-import ttkbootstrap as tb
+import tkinter as tk
+from tkinter import ttk
 from PIL import Image, ImageTk
 import tkinter.messagebox as mb
 from distancias_manhattan import distancias_manhattan
 from uniones_nodos_manhattan import uniones_manhattan
-from dibujar_grafo_manhattan import dibujar_grafo
+from ejemplo_matplot import crear_ventana_inicial
 
 # Cada equipo de trabajo deberá desarrollar una aplicación que permita:
 
@@ -50,43 +50,43 @@ def agregar_nodo(heuristica):
         nodos[etiqueta_nodo] = []
 
         # Crear y ubicar el nodo con su nombre
-        label_nodo = tb.Label(ventana, text="Nodo " + etiqueta_nodo)
+        label_nodo = tk.Label(ventana, text="Nodo " + etiqueta_nodo)
         label_nodo.grid(row=contador_filas+2, column=0, padx=10, pady=10)
 
         # Crear y ubicar el campo de entrada para la posición X
-        label_x = tb.Label(ventana, text="Distancia X:")
+        label_x = tk.Label(ventana, text="Distancia X:")
         label_x.grid(row=contador_filas+2, column=1, padx=10, pady=5)
-        input_x = tb.Entry(ventana)
+        input_x = tk.Entry(ventana)
         input_x.grid(row=contador_filas+2, column=2, padx=10, pady=5)
 
         # Crear y ubicar el campo de entrada para la posición Y
-        label_y = tb.Label(ventana, text="Distancia Y:")
+        label_y = tk.Label(ventana, text="Distancia Y:")
         label_y.grid(row=contador_filas+2, column=3, padx=10, pady=5)
-        input_y = tb.Entry(ventana)
+        input_y = tk.Entry(ventana)
         input_y.grid(row=contador_filas+2, column=4, padx=10, pady=5)
 
         # Agrego los inputs a una lista global de inputs
         posiciones[etiqueta_nodo] = [input_x, input_y]
 
         # Crear y ubicar el label y combo para los conexiones de los nodos
-        nodos_combo_label = tb.Label(ventana, text="Conexiones:")
+        nodos_combo_label = tk.Label(ventana, text="Conexiones:")
         nodos_combo_label.grid(row=contador_filas+2, column=5, padx=10, pady=5)
         keys = list(nodos.keys())
-        nodo_combobox = tb.Combobox(ventana, values=keys, state="readonly")
+        nodo_combobox = ttk.Combobox(ventana, values=keys, state="readonly")
         nodo_combobox.grid(row=contador_filas+2, column=6, padx=10, pady=5)
 
         # Crear y ubicar los botones de agregar y eliminar nodos de la lista de conexiones
-        button_add = tb.Button(ventana, image=plus_icon, command=lambda: plus_clicked(
+        button_add = tk.Button(ventana, image=plus_icon, command=lambda: plus_clicked(
             nodo_combobox, nodos[etiqueta_nodo], label_uniones, etiqueta_nodo))
         button_add.grid(row=contador_filas+2, column=7, padx=10, pady=5)
-        button_remove = tb.Button(
+        button_remove = tk.Button(
             ventana, image=minus_icon, command=lambda: minus_clicked(nodos[etiqueta_nodo], label_uniones))
         button_remove.grid(row=contador_filas+2, column=8, padx=10, pady=5)
 
         # Crear y ubicar hacia que nodos se une el nodo de la fila correspondiente
-        label_conex = tb.Label(ventana, text="Uniones:")
+        label_conex = tk.Label(ventana, text="Uniones:")
         label_conex.grid(row=contador_filas+2, column=9, padx=10, pady=5)
-        label_uniones = tb.Label(ventana, text=f"{nodos[etiqueta_nodo]}")
+        label_uniones = tk.Label(ventana, text=f"{nodos[etiqueta_nodo]}")
         label_uniones.grid(row=contador_filas+2, column=10, padx=10, pady=5)
 
         # Incrementar el contador de filas
@@ -138,9 +138,9 @@ def distancia_recta():
     print('distancia recta')
     limpiar_ventana()
     # Crear y ubicar botones de agregar y quitar nodo
-    boton_agregar_nodo = tb.Button(
+    boton_agregar_nodo = tk.Button(
         ventana, text="Agregar Nodo", command=lambda: agregar_nodo("dlr"))
-    boton_eliminar_nodo = tb.Button(
+    boton_eliminar_nodo = tk.Button(
         ventana, text="Eliminar Nodo", command=lambda: eliminar_nodo("dlr"))
 
     boton_agregar_nodo.grid(row=1, column=4, pady=20, padx=20)
@@ -157,11 +157,11 @@ def distancia_manhattan():
 
     # Crear y ubicar botones de nodo incial y final
     keys = list(nodos.keys())
-    label_nodo_inicial = tb.Label(text="Nodo Inicial:")
-    label_nodo_final = tb.Label(text="Nodo Final:")
-    nodo_inicial = combo_nodo_inicial = tb.Combobox(
+    label_nodo_inicial = tk.Label(text="Nodo Inicial:")
+    label_nodo_final = tk.Label(text="Nodo Final:")
+    nodo_inicial = combo_nodo_inicial = ttk.Combobox(
         ventana, values=keys, state="readonly")
-    nodo_final = combo_nodo_final = tb.Combobox(
+    nodo_final = combo_nodo_final = ttk.Combobox(
         ventana, values=keys, state="readonly")
 
     # Crear y ubicar el combo nodo inicial y final
@@ -171,21 +171,21 @@ def distancia_manhattan():
     combo_nodo_final.grid(row=1, column=3, pady=20, padx=20)
 
     # Crear y ubicar botones de agregar y quitar nodo
-    boton_agregar_nodo = tb.Button(
+    boton_agregar_nodo = tk.Button(
         ventana, text="Agregar Nodo", command=lambda: agregar_nodo("manhattan"))
-    boton_eliminar_nodo = tb.Button(
+    boton_eliminar_nodo = tk.Button(
         ventana, text="Eliminar Nodo", command=lambda: eliminar_nodo("manhattan"))
 
     boton_agregar_nodo.grid(row=1, column=4, pady=20, padx=20)
     boton_eliminar_nodo.grid(row=1, column=5, pady=20, padx=20)
 
     # Crear y ubicar boton dibujar
-    boton_dibujar = tb.Button(ventana, text="Dibujar",
+    boton_dibujar = tk.Button(ventana, text="Dibujar",
                               command=obtener_datos_manhattan)
     boton_dibujar.grid(row=1, column=6, pady=20, padx=20)
 
     # Crear y centrar el label
-    label_central = tb.Label(
+    label_central = tk.Label(
         ventana, text="Distancia Manhattan", font=("Helvetica", 15))
     label_central.grid(row=0, column=0, columnspan=12, pady=15)
 
@@ -244,7 +244,7 @@ def obtener_datos_manhattan():
         if not value:
             return mb.showwarning("Error Uniones", "Alguno de los nodos no contiene ninguna union a otro nodo", parent=ventana)
     for key, value in posiciones.items():
-        if isinstance(value[0], Entry) and isinstance(value[1], Entry):
+        if isinstance(value[0], tk.Entry) and isinstance(value[1], tk.Entry):
             x_value = value[0].get()
             y_value = value[1].get()
             if x_value == "" or y_value == "":
@@ -256,17 +256,25 @@ def obtener_datos_manhattan():
     
     uniones = uniones_manhattan(dict=nodos)
 
-    print(f"Nodo inicial : {nodo_inicial.get()}")
-    print(f"Nodo Final : {nodo_final.get()}")
-    print(f"Nodos conectados : {nodos}")
-    print(f"Distancia al nodo final : {distancias}")
-    print(f"Uniones entre cada nodo : {uniones}")
+    # print(f"Nodo inicial : {nodo_inicial.get()}")
+    # print(f"Nodo Final : {nodo_final.get()}")
+    # print(f"Nodos conectados : {nodos}")
+    # print(f"Distancia al nodo final : {distancias}")
+    # print(f"Uniones entre cada nodo : {uniones}")
 
-    # dibujar_grafo(nodos=nodos, distancias=distancias, uniones=uniones)
+    info = {
+        'nodo_inicial': nodo_inicial.get(),
+        'nodo_final': nodo_final.get(),
+        'nodos': list(nodos.keys()),
+        'distancias': distancias,
+        'uniones': uniones,
+    }
+
+    crear_ventana_inicial(info=info)
 
 
 # Instanciar la ventana
-ventana = tb.Window(themename="superhero")
+ventana = tk.Tk()
 # Darle titulo a la ventana
 ventana.title("Trabajo Practica Final IA 1")
 # Establecer la geometría inicial de la ventana
@@ -274,10 +282,10 @@ ventana.geometry("400x200")
 
 # MENU
 # Creo el menu de la ventana
-menu_principal = tb.Menu()
+menu_principal = tk.Menu()
 
 # Se crean las opciones principales
-menu_heuristicas = tb.Menu(menu_principal, tearoff=False)
+menu_heuristicas = tk.Menu(menu_principal, tearoff=False)
 
 # Agregar las opciones principales al menu
 menu_principal.add_cascade(label="Heuristicas",
