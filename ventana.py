@@ -130,7 +130,7 @@ def eliminar_nodo():
         ventana.geometry("400x200")
 
 
-def estados_aleatorios():
+def estados_aleatorios(): 
     print('estados aleatorios')
 
 

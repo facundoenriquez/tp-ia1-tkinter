@@ -22,6 +22,14 @@ canvas_escalada_simple = None
 fig_escalada_simple = None
 agregar_frames_escalada_simple = True
 
+# Datos para maxima pendiente
+estados_maxima_pendiente = []
+nuevas_conexiones_maxima_pendiente = []
+conexiones_maxima_pendiente = conexiones.copy()
+canvas_maxima_pendiente = None
+fig_maxima_pendiente = None
+agregar_frames_maxima_pendiente = True
+
 nodo_incial_20_1 = 'A'
 nodo_final_20_1 = 'F'
 dlr_20_1 = {"A": 60, "B": 40, "C": 50, "D": 10, "E": 20, "F": 00}
@@ -68,6 +76,16 @@ uniones_20_5 = [
     ('F', 'H'), ('H', 'K'), ('H', 'Z'),
 ]
 
+nodo_incial_20_i = 'A'
+nodo_final_20_i = 'Z'
+dlr_20_i = {"A": 77, "E": 55, "F": 70, "D": 80, "X": 33, "Z": 00}
+nodos_20_i = ['A', 'E', 'F', 'D', 'X', 'Z']
+uniones_20_i = [
+    ('A', 'E'), ('A', 'F'), ('A', 'D'),
+    ('E', 'F'), ('E', 'X'), ('E', 'Z'),
+    ('F', 'D'), ('X', 'Z'), ('D', 'Z'),
+]
+
 
 def dibujar_arbol():
     # Crear un grafo vacío
@@ -103,7 +121,7 @@ def cerrar_ventana():
     ventana.quit()
 
 
-def crear_ventana_inicial(info):
+def crear_ventana_inicial(*info):
     # Definir ventana como variable global
     global ventana, nodo_inicial, nodo_final, nodos, distancias, conexiones
     # nodo_inicial = info["nodo_inicial"]
@@ -112,11 +130,11 @@ def crear_ventana_inicial(info):
     # distancias = info["distancias"]
     # conexiones = info["uniones"]
 
-    nodo_inicial = nodo_incial_20_5
-    nodo_final = nodo_final_20_5
-    nodos = nodos_20_5
-    distancias = dlr_20_5
-    conexiones = uniones_20_5
+    nodo_inicial = nodo_incial_20_i
+    nodo_final = nodo_final_20_i
+    nodos = nodos_20_i
+    distancias = dlr_20_i
+    conexiones = uniones_20_i
 
     # Crear la ventana principal
     ventana = tk.Tk()
@@ -176,6 +194,7 @@ def crear_ventana_inicial(info):
 # FUNCIONES DE ESCALADA SIMPLE
 def mostrar_ventana_escalada_simple():
     global estados_escalada_simple, nuevas_conexiones_escalada_simple, conexiones_escalada_simple, canvas_escalada_simple, fig_escalada_simple
+
     ventana_secundaria = tk.Toplevel()
     ventana_secundaria.title("Escalada Simple")
 
@@ -235,7 +254,7 @@ def mostrar_ventana_escalada_simple():
     frame_info.pack(side="top", fill="both")
 
     # Obtener información del árbol
-    info = f"Información adicional:\n- Estados: {estados_escalada_simple}"
+    info = f"Estado Inicial: {estados_escalada_simple}"
 
     # Label para la información adicional
     label_info = tk.Label(frame_info, text=info,
@@ -280,16 +299,21 @@ def dibujar_arbol_escalada_simple(fig=None):
         estado_actual = estados_escalada_simple[-1]
 
         if estado_actual == nodo_final:
-            # ultimo_nodo = estados_escalada_simple[-1]
-            # node_colors[list(G.nodes()).index(ultimo_nodo)] = 'yellow'
-            node_colors = ['red' if node ==
-                           nodo_inicial else 'lightblue' for node in G.nodes()]
-            edge_colors = ['blue' if (con[0] == nodo_final or con[1] == nodo_final) else 'black' for con in
-                           nuevas_conexiones_escalada_simple]
+            node_colors = ['red' if node == nodo_inicial else 'green' if node ==
+                           nodo_final else 'lightblue' for node in G.nodes()]
+            conexiones = [(estados_escalada_simple[i], estados_escalada_simple[i+1])
+                          for i in range(len(estados_escalada_simple)-1)]
+
+            print(conexiones)
+
+            # Usa la función esta_en_camino para determinar los colores de los edges
+            edge_colors = [
+                'lightblue' if con in conexiones else 'black' for con in nuevas_conexiones_escalada_simple]
+
             pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
             fig = plt.figure()
             ax = fig.add_subplot(111)
-            nx.draw(G, pos, with_labels=True, node_size=1000, node_color=node_colors, edge_colors=edge_colors,
+            nx.draw(G, pos, with_labels=True, node_size=1000, node_color=node_colors, edge_color=edge_colors,
                     font_size=12, font_weight='bold', arrows=True, ax=ax)
             mb.showwarning("Objetivo Encontrado", f"El estado {
                            estado_actual} es el objetivo")
@@ -406,6 +430,8 @@ def eliminar_frame_escalada_simple():
 
 # FUNCIONES DE MAXIMA PENDIENTE
 def mostrar_ventana_maxima_pendiente():
+    global estados_maxima_pendiente, nuevas_conexiones_maxima_pendiente, conexiones_maxima_pendiente, canvas_maxima_pendiente, fig_maxima_pendiente
+
     # Crear la ventana secundaria
     ventana_secundaria = tk.Toplevel()
     ventana_secundaria.title("Maxima Pendiente")
@@ -418,13 +444,27 @@ def mostrar_ventana_maxima_pendiente():
     frame_grafico = ttk.Frame(frame_secundario, borderwidth=2, relief="solid")
     frame_grafico.pack(side="left", fill="both", expand=True)
 
-    # Dibujar el árbol y obtener la figura
-    fig = dibujar_arbol()
+    # Reiniciar la lista de estados_maxima_pendiente para abrir una ventana nueva
+    estados_maxima_pendiente = []
+    nuevas_conexiones_maxima_pendiente = []
+    conexiones_maxima_pendiente = conexiones.copy()
+    canvas_maxima_pendiente = None
+    fig_maxima_pendiente = None
 
-    # Agregar el gráfico a la ventana de Tkinter
-    canvas = FigureCanvasTkAgg(fig, master=frame_secundario)
-    canvas.draw()
-    canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
+    # Dibujar el árbol y obtener la figura
+    fig_maxima_pendiente = dibujar_arbol_maxima_pendiente()
+
+    # Crear el canvas si no existe
+    if canvas_maxima_pendiente is None:
+        canvas_maxima_pendiente = FigureCanvasTkAgg(
+            fig_maxima_pendiente, master=frame_secundario)
+        canvas_maxima_pendiente.draw()
+        canvas_maxima_pendiente.get_tk_widget().pack(
+            side="left", fill="both", expand=True)
+    else:
+        # Actualizar el contenido del canvas
+        canvas_maxima_pendiente.figure = fig_maxima_pendiente
+        canvas_maxima_pendiente.draw()
 
     # Frame para la información adicional y los botones
     frame_contenido = ttk.Frame(
@@ -449,27 +489,132 @@ def mostrar_ventana_maxima_pendiente():
     frame_info.pack(side="top", fill="both")
 
     # Obtener información del árbol
-    info = "Información adicional:\n\n- Profundidad máxima: 3\n- Nodos terminales: D, E, F, G"
+    info = f"Estado Inicial: {estados_maxima_pendiente}"
 
     # Label para la información adicional
     label_info = tk.Label(frame_info, text=info,
                           justify="left", anchor="center")
     label_info.pack(fill="both", expand=True, padx=5, pady=5)
+
+
+def dibujar_arbol_maxima_pendiente(fig=None):
+    global G, node_colors, pos, agregar_frames_maxima_pendiente
+    if nodo_inicial == nodo_final:
+        return mb.showwarning("Se llego al objetivo", "El estado inicial es igual al estado objetivo")
+    if len(estados_maxima_pendiente) == 0:
+        agregar_frames_maxima_pendiente = True
+
+        # Crear un grafo vacío
+        G = nx.Graph()
+
+        # Agregar nodos al grafo
+        G.add_nodes_from(nodo_inicial)
+
+        print(nodo_inicial)
+
+        # Dibujar el gráfico
+        pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
+
+        fig = plt.figure()
+
+        ax = fig.add_subplot(111)
+
+        # Dibujar el grafo en la figura
+        nx.draw(G, pos, with_labels=True, node_size=1000, node_color='red',
+                font_size=12, font_weight='bold', arrows=True, ax=ax)
+
+        estados_maxima_pendiente.append(nodo_inicial)
+
+        # Devolver la figura
+        return fig
+    else:
+        agregar_frames_maxima_pendiente = True
+
+        # Estado actual utilizamos para marcar el camino hacia el nodo objetivo o para ver si hay algun min/max local
+        estado_actual = estados_maxima_pendiente[-1]
+
+        conex_estado_actual = []
+        print(f"Estado actual: {estado_actual}")
+        for con in conexiones_maxima_pendiente:
+            if con[0] == estado_actual and con[1] not in estados_maxima_pendiente:
+                conex_estado_actual.append(con[1])
+            elif con[1] == estado_actual and con[0] not in estados_maxima_pendiente:
+                conex_estado_actual.append(con[0])
+
+        print(f"conex al estado actual: {conex_estado_actual}")
+
+        for con in conex_estado_actual:
+            nueva_conexion = (estado_actual, con)
+            nueva_conexion_inversa = (con, estado_actual)
+
+            # nuevas_conexiones_maxima_pendiente son las aristas del grafo
+            nuevas_conexiones_maxima_pendiente.append(nueva_conexion)
+
+            print(f"nuevas conex maxima pendiente: {nuevas_conexiones_maxima_pendiente}")
+
+            if nueva_conexion in conexiones_maxima_pendiente:
+                conexiones_maxima_pendiente.remove(nueva_conexion)
+            elif nueva_conexion_inversa in conexiones_maxima_pendiente:
+                conexiones_maxima_pendiente.remove(nueva_conexion_inversa)
+
+            print(f'conexiones maxima pendiente: {conexiones_maxima_pendiente}')
+
+        if distancias[obtener_nodo_alfabeticamente] < distancias[estado_actual]:
+            estados_escalada_simple.append(obtener_nodo_alfabeticamente)
+
+        print(f"estados escalada simple: {estados_escalada_simple}")
+
+        nodos_a_graficar = [
+            nodo for conexion in nuevas_conexiones_escalada_simple for nodo in conexion]
+        nodos_a_graficar = list(set(nodos_a_graficar))
+
+        print(f"Nodos a graficar: {nodos_a_graficar}")
+        print(f"Nuevas conexiones: {nuevas_conexiones_escalada_simple} \n")
+
+        # Crear un grafo con las nuevas conexiones
+        G = nx.Graph()
+        G.add_nodes_from(nodos_a_graficar)
+        G.add_edges_from(nuevas_conexiones_escalada_simple)
+
+        # Dibujar el grafo
+        pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
+
+        fig = plt.figure()
+
+        ax = fig.add_subplot(111)
+
+        node_colors = ['red' if node ==
+                       nodo_inicial else 'lightblue' for node in G.nodes()]
+        nx.draw(G, pos, with_labels=True, node_size=1000, node_color=node_colors,
+                font_size=12, font_weight='bold', arrows=True, ax=ax)
+
+        # Devolver la nueva figura
+        return fig
 
 
 def insertar_frame_maxima_pendiente(frame_contenido):
-    # Frame para los botones
-    frame_info = ttk.Frame(frame_contenido, borderwidth=2, relief="solid")
-    frames.append(frame_info)
-    frame_info.pack(side="top", fill="both")
+    global fig_maxima_pendiente, canvas_maxima_pendiente, agregar_frames_maxima_pendiente
 
-    # Obtener información del árbol
-    info = "Información de bokita adicional:\n\n- Profundidad máxima: 3\n- Nodos terminales: D, E, F, G"
+    if agregar_frames_maxima_pendiente:
+        # Frame para los botones
+        frame_info = ttk.Frame(frame_contenido, borderwidth=2, relief="solid")
+        frames.append(frame_info)
+        frame_info.pack(side="top", fill="both")
 
-    # Label para la información adicional
-    label_info = tk.Label(frame_info, text=info,
-                          justify="left", anchor="center")
-    label_info.pack(fill="both", expand=True, padx=5, pady=5)
+        # Obtener información del árbol
+        info = f"Estados:\n- {estados_maxima_pendiente}"
+
+        # Label para la información adicional
+        label_info = tk.Label(frame_info, text=info,
+                              justify="left", anchor="center")
+        label_info.pack(fill="both", expand=True, padx=5, pady=5)
+
+    # Dibujar el árbol y obtener la figura actualizada
+    fig_maxima_pendiente = dibujar_arbol_maxima_pendiente(fig_maxima_pendiente)
+
+    # Actualizar la figura en el canvas
+    canvas_maxima_pendiente.figure = fig_maxima_pendiente
+    canvas_maxima_pendiente.draw()
 
 
 def eliminar_frame_maxima_pendiente():
@@ -480,4 +625,4 @@ def eliminar_frame_maxima_pendiente():
 
 
 # Llamar a la función para crear la ventana con el árbol y la información
-# crear_ventana_inicial(info)
+crear_ventana_inicial()
