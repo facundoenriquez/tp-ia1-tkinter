@@ -29,6 +29,7 @@ conexiones_maxima_pendiente = conexiones.copy()
 canvas_maxima_pendiente = None
 fig_maxima_pendiente = None
 agregar_frames_maxima_pendiente = True
+succ = []
 
 nodo_incial_20_1 = 'A'
 nodo_final_20_1 = 'F'
@@ -309,6 +310,8 @@ def dibujar_arbol_escalada_simple(fig=None):
             # Usa la función esta_en_camino para determinar los colores de los edges
             edge_colors = [
                 'lightblue' if con in conexiones else 'black' for con in nuevas_conexiones_escalada_simple]
+            
+            print(edge_colors)
 
             pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
             fig = plt.figure()
@@ -430,11 +433,14 @@ def eliminar_frame_escalada_simple():
 
 # FUNCIONES DE MAXIMA PENDIENTE
 def mostrar_ventana_maxima_pendiente():
-    global estados_maxima_pendiente, nuevas_conexiones_maxima_pendiente, conexiones_maxima_pendiente, canvas_maxima_pendiente, fig_maxima_pendiente
+    global estados_maxima_pendiente, nuevas_conexiones_maxima_pendiente, conexiones_maxima_pendiente, canvas_maxima_pendiente, fig_maxima_pendiente, succ
 
     # Crear la ventana secundaria
     ventana_secundaria = tk.Toplevel()
     ventana_secundaria.title("Maxima Pendiente")
+
+    # Establecer la ventana principal como maestra de la ventana secundaria
+    ventana_secundaria.transient(ventana)
 
     # Frame para el contenido de la ventana secundaria
     frame_secundario = ttk.Frame(ventana_secundaria)
@@ -450,6 +456,7 @@ def mostrar_ventana_maxima_pendiente():
     conexiones_maxima_pendiente = conexiones.copy()
     canvas_maxima_pendiente = None
     fig_maxima_pendiente = None
+    succ = []
 
     # Dibujar el árbol y obtener la figura
     fig_maxima_pendiente = dibujar_arbol_maxima_pendiente()
@@ -533,15 +540,44 @@ def dibujar_arbol_maxima_pendiente(fig=None):
         # Estado actual utilizamos para marcar el camino hacia el nodo objetivo o para ver si hay algun min/max local
         estado_actual = estados_maxima_pendiente[-1]
 
+        if estado_actual == nodo_final_20_i:
+            node_colors = ['red' if node == nodo_inicial else 'green' if node ==
+                   nodo_final else 'lightblue' for node in G.nodes()]
+            conexiones = [(estados_maxima_pendiente[i], estados_maxima_pendiente[i+1])
+                        for i in range(len(estados_maxima_pendiente)-1)]
+
+            print(conexiones)
+
+            # Usa la función esta_en_camino para determinar los colores de los edges
+            edge_colors = [
+                'lightblue' if con in conexiones else 'black' for con in nuevas_conexiones_maxima_pendiente]
+            
+            print(edge_colors)
+
+            pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            nx.draw(G, pos, with_labels=True, node_size=1000, node_color=node_colors, edge_color=edge_colors,
+                    font_size=12, font_weight='bold', arrows=True, ax=ax)
+            mb.showwarning("Objetivo Encontrado", f"El estado {
+                           estado_actual} es el objetivo")
+            agregar_frames_maxima_pendiente = False
+            return fig
+        
         conex_estado_actual = []
         print(f"Estado actual: {estado_actual}")
         for con in conexiones_maxima_pendiente:
             if con[0] == estado_actual and con[1] not in estados_maxima_pendiente:
                 conex_estado_actual.append(con[1])
+                if con[0] == estado_actual and con[1] not in succ:
+                    succ.append(con[1])
             elif con[1] == estado_actual and con[0] not in estados_maxima_pendiente:
                 conex_estado_actual.append(con[0])
+                if con[1] == estado_actual and con[0] not in succ:
+                    succ.append(con[0])
 
         print(f"conex al estado actual: {conex_estado_actual}")
+        print(f"sucesores : {succ}")
 
         for con in conex_estado_actual:
             nueva_conexion = (estado_actual, con)
@@ -550,31 +586,38 @@ def dibujar_arbol_maxima_pendiente(fig=None):
             # nuevas_conexiones_maxima_pendiente son las aristas del grafo
             nuevas_conexiones_maxima_pendiente.append(nueva_conexion)
 
-            print(f"nuevas conex maxima pendiente: {nuevas_conexiones_maxima_pendiente}")
-
             if nueva_conexion in conexiones_maxima_pendiente:
                 conexiones_maxima_pendiente.remove(nueva_conexion)
             elif nueva_conexion_inversa in conexiones_maxima_pendiente:
                 conexiones_maxima_pendiente.remove(nueva_conexion_inversa)
 
-            print(f'conexiones maxima pendiente: {conexiones_maxima_pendiente}')
+        print(f"nuevas conex maxima pendiente: {
+              nuevas_conexiones_maxima_pendiente}")
 
-        if distancias[obtener_nodo_alfabeticamente] < distancias[estado_actual]:
-            estados_escalada_simple.append(obtener_nodo_alfabeticamente)
+        print(f'conexiones maxima pendiente: {conexiones_maxima_pendiente}')
 
-        print(f"estados escalada simple: {estados_escalada_simple}")
+        filtered_data = {
+            key: distancias[key] for key in conex_estado_actual if key in distancias}
+        min_key = min(filtered_data, key=filtered_data.get)
+
+        if distancias[min_key] < distancias[estado_actual]:
+            succ.remove(min_key)
+            estados_maxima_pendiente.append(min_key)
+
+        print(f"estados escalada simple: {estados_maxima_pendiente}")
+        print(f"sucesores : {succ}")
 
         nodos_a_graficar = [
-            nodo for conexion in nuevas_conexiones_escalada_simple for nodo in conexion]
+            nodo for conexion in nuevas_conexiones_maxima_pendiente for nodo in conexion]
         nodos_a_graficar = list(set(nodos_a_graficar))
 
         print(f"Nodos a graficar: {nodos_a_graficar}")
-        print(f"Nuevas conexiones: {nuevas_conexiones_escalada_simple} \n")
+        print(f"Nuevas conexiones: {nuevas_conexiones_maxima_pendiente} \n")
 
         # Crear un grafo con las nuevas conexiones
         G = nx.Graph()
         G.add_nodes_from(nodos_a_graficar)
-        G.add_edges_from(nuevas_conexiones_escalada_simple)
+        G.add_edges_from(nuevas_conexiones_maxima_pendiente)
 
         # Dibujar el grafo
         pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos

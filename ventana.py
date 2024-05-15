@@ -4,7 +4,9 @@ from PIL import Image, ImageTk
 import tkinter.messagebox as mb
 from distancias_manhattan import distancias_manhattan
 from uniones_nodos_manhattan import uniones_manhattan
-from ejemplo_matplot import crear_ventana_inicial
+import random
+
+# from ejemplo_matplot import crear_ventana_inicial
 
 # Cada equipo de trabajo deberá desarrollar una aplicación que permita:
 
@@ -100,6 +102,7 @@ def agregar_nodo(heuristica):
         actualizar_nodo_inicial_final()
         # Actualizar ventana cuando cambia de heuristica
         ajustar_ventana()
+    print(comboboxes)
 
 
 def actualizar_nodo_inicial_final():
@@ -130,8 +133,75 @@ def eliminar_nodo():
         ventana.geometry("400x200")
 
 
-def estados_aleatorios(): 
-    print('estados aleatorios')
+def estados_aleatorios():
+    global contador_filas, nodos
+
+    # Eliminar solo los nodos aleatorios anteriores
+    for widget in ventana.grid_slaves():
+        if widget.grid_info()['row'] > 1:
+            widget.grid_forget()
+    nodos.clear()
+    contador_filas = 0
+
+    # Limpiar la lista de Comboboxes existentes
+    comboboxes.clear()
+
+    num_nodos = random.randint(1, 7)
+    for i in range(num_nodos):
+        etiqueta_nodo = chr(65 + i)
+        nodos[etiqueta_nodo] = []
+
+        # Crear y ubicar el nodo con su nombre
+        label_nodo = tk.Label(ventana, text="Nodo " + etiqueta_nodo)
+        label_nodo.grid(row=contador_filas+2, column=0, padx=10, pady=10)
+
+        # Crear y ubicar el campo de entrada para la posición X
+        label_x = tk.Label(ventana, text="Distancia X:")
+        label_x.grid(row=contador_filas+2, column=1, padx=10, pady=5)
+        input_x = tk.Entry(ventana)
+        input_x.grid(row=contador_filas+2, column=2, padx=10, pady=5)
+
+        # Crear y ubicar el campo de entrada para la posición Y
+        label_y = tk.Label(ventana, text="Distancia Y:")
+        label_y.grid(row=contador_filas+2, column=3, padx=10, pady=5)
+        input_y = tk.Entry(ventana)
+        input_y.grid(row=contador_filas+2, column=4, padx=10, pady=5)
+
+        # Agrego los inputs a una lista global de inputs
+        posiciones[etiqueta_nodo] = [input_x, input_y]
+
+        # Crear y ubicar el label y combo para los conexiones de los nodos
+        nodos_combo_label = tk.Label(ventana, text="Conexiones:")
+        nodos_combo_label.grid(row=contador_filas+2, column=5, padx=10, pady=5)
+        keys = list(nodos.keys())
+        nodo_combobox = ttk.Combobox(ventana, values=keys, state="readonly")
+        nodo_combobox.grid(row=contador_filas+2, column=6, padx=10, pady=5)
+
+        # Crear y ubicar los botones de agregar y eliminar nodos de la lista de conexiones
+        button_add = tk.Button(ventana, image=plus_icon, command=lambda: plus_clicked(
+            nodo_combobox, nodos[etiqueta_nodo], label_uniones, etiqueta_nodo))
+        button_add.grid(row=contador_filas+2, column=7, padx=10, pady=5)
+        button_remove = tk.Button(
+            ventana, image=minus_icon, command=lambda: minus_clicked(nodos[etiqueta_nodo], label_uniones))
+        button_remove.grid(row=contador_filas+2, column=8, padx=10, pady=5)
+
+        # Crear y ubicar hacia que nodos se une el nodo de la fila correspondiente
+        label_conex = tk.Label(ventana, text="Uniones:")
+        label_conex.grid(row=contador_filas+2, column=9, padx=10, pady=5)
+        label_uniones = tk.Label(ventana, text=f"{nodos[etiqueta_nodo]}")
+        label_uniones.grid(row=contador_filas+2, column=10, padx=10, pady=5)
+
+        # Incrementar el contador de filas
+        contador_filas += 1
+        # Agregar el Combobox recién creado a la lista global de Comboboxes
+        comboboxes.append(nodo_combobox)
+
+        # Actualizar todos los combos de conexión de los nodos
+        actualizar_comboboxes()
+
+    actualizar_nodo_inicial_final()
+    ajustar_ventana()
+    print(comboboxes)
 
 
 def distancia_recta():
@@ -184,6 +254,11 @@ def distancia_manhattan():
                               command=obtener_datos_manhattan)
     boton_dibujar.grid(row=1, column=6, pady=20, padx=20)
 
+    # Crear y ubicar boton aleatorio
+    boton_dibujar = tk.Button(ventana, text="Estados Aleatorios",
+                              command=estados_aleatorios)
+    boton_dibujar.grid(row=1, column=7, pady=20, padx=20)
+
     # Crear y centrar el label
     label_central = tk.Label(
         ventana, text="Distancia Manhattan", font=("Helvetica", 15))
@@ -214,6 +289,7 @@ def ajustar_ventana():
 
 def plus_clicked(nodo_combobox, conexiones, label_uniones, nodo_actual):
     selected_value = nodo_combobox.get()
+    print(selected_value)
     if selected_value == "":
         mb.showwarning(
             "Danger", "La conexion no puede estar vacia!", parent=ventana)
@@ -250,10 +326,10 @@ def obtener_datos_manhattan():
             if x_value == "" or y_value == "":
                 return mb.showwarning("Error Posicion X o Y", "Alguno de los campos de entradas X o Y esta vacio", parent=ventana)
             posiciones[key] = [x_value, y_value]
-            
+
     distancias = distancias_manhattan(
         nodo_final=nodo_final.get(), posiciones=posiciones)
-    
+
     uniones = uniones_manhattan(dict=nodos)
 
     # print(f"Nodo inicial : {nodo_inicial.get()}")
@@ -270,7 +346,9 @@ def obtener_datos_manhattan():
         'uniones': uniones,
     }
 
-    crear_ventana_inicial(info=info)
+    print(info)
+
+    # crear_ventana_inicial(info=info)
 
 
 # Instanciar la ventana
