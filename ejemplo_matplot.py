@@ -21,6 +21,7 @@ conexiones_escalada_simple = conexiones.copy()
 canvas_escalada_simple = None
 fig_escalada_simple = None
 agregar_frames_escalada_simple = True
+pasos_escalada_simple = 0
 
 # Datos para maxima pendiente
 estados_maxima_pendiente = []
@@ -30,6 +31,8 @@ canvas_maxima_pendiente = None
 fig_maxima_pendiente = None
 agregar_frames_maxima_pendiente = True
 succ = []
+pasos_escalada_maxima_pendiente = 0
+
 
 nodo_incial_20_1 = 'A'
 nodo_final_20_1 = 'F'
@@ -117,12 +120,13 @@ def dibujar_arbol():
     return fig
 
 
-def cerrar_ventana():
-    # Detener la ejecución del programa
-    ventana.quit()
+# def cerrar_ventana():
+#     # Detener la ejecución del programa
+#     ventana.quit()
 
 
-def crear_ventana_inicial(*info):
+def crear_ventana_inicial(info):
+    print(info)
     # Definir ventana como variable global
     global ventana, nodo_inicial, nodo_final, nodos, distancias, conexiones
     # nodo_inicial = info["nodo_inicial"]
@@ -184,7 +188,7 @@ def crear_ventana_inicial(*info):
     label_info.pack(fill="both", expand=True, padx=10, pady=10)
 
     # Configurar la función de cierre de ventana
-    ventana.protocol("WM_DELETE_WINDOW", cerrar_ventana)
+    # ventana.protocol("WM_DELETE_WINDOW", cerrar_ventana)
 
     # Ajustar automáticamente el tamaño de la ventana al contenido
     ventana.update_idletasks()
@@ -409,7 +413,7 @@ def insertar_frame_escalada_simple(frame_contenido):
         frame_info.pack(side="top", fill="both")
 
         # Obtener información del árbol
-        info = f"Estados:\n- {estados_escalada_simple}"
+        info = f"Paso: {pasos_escalada_simple+1} \n Estados:\n- {estados_escalada_simple}"
 
         # Label para la información adicional
         label_info = tk.Label(frame_info, text=info,
@@ -668,4 +672,4 @@ def eliminar_frame_maxima_pendiente():
 
 
 # Llamar a la función para crear la ventana con el árbol y la información
-crear_ventana_inicial()
+# crear_ventana_inicial(info)

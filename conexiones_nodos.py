@@ -1,4 +1,4 @@
-def uniones_manhattan(dict):
+def uniones_nodos(dict):
 
     # Conjunto para almacenar tuplas únicas
     conjunto_de_uniones = []
