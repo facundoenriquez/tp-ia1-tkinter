@@ -120,26 +120,26 @@ def dibujar_arbol():
     return fig
 
 
-# def cerrar_ventana():
-#     # Detener la ejecución del programa
-#     ventana.quit()
+def cerrar_ventana():
+    # Detener la ejecución del programa
+    ventana.destroy()
 
 
 def crear_ventana_inicial(info):
     print(info)
     # Definir ventana como variable global
     global ventana, nodo_inicial, nodo_final, nodos, distancias, conexiones
-    # nodo_inicial = info["nodo_inicial"]
-    # nodo_final = info["nodo_final"]
-    # nodos = info["nodos"]
-    # distancias = info["distancias"]
-    # conexiones = info["uniones"]
+    nodo_inicial = info["nodo_inicial"]
+    nodo_final = info["nodo_final"]
+    nodos = info["nodos"]
+    distancias = info["distancias"]
+    conexiones = info["uniones"]
 
-    nodo_inicial = nodo_incial_20_i
-    nodo_final = nodo_final_20_i
-    nodos = nodos_20_i
-    distancias = dlr_20_i
-    conexiones = uniones_20_i
+    # nodo_inicial = nodo_incial_20_i
+    # nodo_final = nodo_final_20_i
+    # nodos = nodos_20_i
+    # distancias = dlr_20_i
+    # conexiones = uniones_20_i
 
     # Crear la ventana principal
     ventana = tk.Tk()
@@ -314,7 +314,7 @@ def dibujar_arbol_escalada_simple(fig=None):
             # Usa la función esta_en_camino para determinar los colores de los edges
             edge_colors = [
                 'lightblue' if con in conexiones else 'black' for con in nuevas_conexiones_escalada_simple]
-            
+
             print(edge_colors)
 
             pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
@@ -413,7 +413,8 @@ def insertar_frame_escalada_simple(frame_contenido):
         frame_info.pack(side="top", fill="both")
 
         # Obtener información del árbol
-        info = f"Paso: {pasos_escalada_simple+1} \n Estados:\n- {estados_escalada_simple}"
+        info = f"Paso: {pasos_escalada_simple +
+                        1} \n Estados:\n- {estados_escalada_simple}"
 
         # Label para la información adicional
         label_info = tk.Label(frame_info, text=info,
@@ -544,18 +545,18 @@ def dibujar_arbol_maxima_pendiente(fig=None):
         # Estado actual utilizamos para marcar el camino hacia el nodo objetivo o para ver si hay algun min/max local
         estado_actual = estados_maxima_pendiente[-1]
 
-        if estado_actual == nodo_final_20_i:
+        if estado_actual == nodo_final:
             node_colors = ['red' if node == nodo_inicial else 'green' if node ==
-                   nodo_final else 'lightblue' for node in G.nodes()]
+                           nodo_final else 'lightblue' for node in G.nodes()]
             conexiones = [(estados_maxima_pendiente[i], estados_maxima_pendiente[i+1])
-                        for i in range(len(estados_maxima_pendiente)-1)]
+                          for i in range(len(estados_maxima_pendiente)-1)]
 
             print(conexiones)
 
             # Usa la función esta_en_camino para determinar los colores de los edges
             edge_colors = [
                 'lightblue' if con in conexiones else 'black' for con in nuevas_conexiones_maxima_pendiente]
-            
+
             print(edge_colors)
 
             pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
@@ -567,7 +568,7 @@ def dibujar_arbol_maxima_pendiente(fig=None):
                            estado_actual} es el objetivo")
             agregar_frames_maxima_pendiente = False
             return fig
-        
+
         conex_estado_actual = []
         print(f"Estado actual: {estado_actual}")
         for con in conexiones_maxima_pendiente:
@@ -602,6 +603,9 @@ def dibujar_arbol_maxima_pendiente(fig=None):
 
         filtered_data = {
             key: distancias[key] for key in conex_estado_actual if key in distancias}
+
+        # if not filtered_data:
+
         min_key = min(filtered_data, key=filtered_data.get)
 
         if distancias[min_key] < distancias[estado_actual]:
@@ -669,7 +673,3 @@ def eliminar_frame_maxima_pendiente():
         return mb.showwarning("Error Pasos", "No hay mas pasos para retroceder", parent=ventana)
     frame = frames.pop()
     frame.destroy()
-
-
-# Llamar a la función para crear la ventana con el árbol y la información
-# crear_ventana_inicial(info)

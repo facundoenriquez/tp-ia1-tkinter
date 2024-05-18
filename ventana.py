@@ -5,7 +5,8 @@ import tkinter.messagebox as mb
 from distancias import distancias_manhattan, distancias_linea_recta
 from conexiones_nodos import uniones_nodos
 import random
-from ejemplo_matplot import crear_ventana_inicial
+from dibujar import crear_ventana_inicial
+import sys
 
 # from ejemplo_matplot import crear_ventana_inicial
 
@@ -730,8 +731,10 @@ def obtener_datos_dlr_aleatorios():
 
 
 def cerrar_ventana():
-    ventana.quit()  # Detiene el bucle de eventos principal
-    ventana.destroy()  # Destruye la ventana
+    # Cerrar todas las ventanas y salir del programa
+    ventana.quit()
+    ventana.destroy()
+    sys.exit()
 
 
 # Instanciar la ventana
