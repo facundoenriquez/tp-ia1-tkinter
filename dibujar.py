@@ -125,21 +125,21 @@ def cerrar_ventana():
     ventana.destroy()
 
 
-def crear_ventana_inicial(info):
+def crear_ventana_inicial(*info):
     print(info)
     # Definir ventana como variable global
     global ventana, nodo_inicial, nodo_final, nodos, distancias, conexiones
-    nodo_inicial = info["nodo_inicial"]
-    nodo_final = info["nodo_final"]
-    nodos = info["nodos"]
-    distancias = info["distancias"]
-    conexiones = info["uniones"]
+    # nodo_inicial = info["nodo_inicial"]
+    # nodo_final = info["nodo_final"]
+    # nodos = info["nodos"]
+    # distancias = info["distancias"]
+    # conexiones = info["uniones"]
 
-    # nodo_inicial = nodo_incial_20_i
-    # nodo_final = nodo_final_20_i
-    # nodos = nodos_20_i
-    # distancias = dlr_20_i
-    # conexiones = uniones_20_i
+    nodo_inicial = nodo_incial_20_1
+    nodo_final = nodo_final_20_1
+    nodos = nodos_20_1
+    distancias = dlr_20_1
+    conexiones = uniones_20_1
 
     # Crear la ventana principal
     ventana = tk.Tk()
@@ -673,3 +673,5 @@ def eliminar_frame_maxima_pendiente():
         return mb.showwarning("Error Pasos", "No hay mas pasos para retroceder", parent=ventana)
     frame = frames.pop()
     frame.destroy()
+
+crear_ventana_inicial()
