@@ -22,6 +22,7 @@ canvas_escalada_simple = None
 fig_escalada_simple = None
 agregar_frames_escalada_simple = True
 pasos_escalada_simple = 0
+nodos_no_elegidos_esc_sim = []
 
 # Datos para maxima pendiente
 estados_maxima_pendiente = []
@@ -32,6 +33,8 @@ fig_maxima_pendiente = None
 agregar_frames_maxima_pendiente = True
 succ = []
 pasos_escalada_maxima_pendiente = 0
+niveles_max_pend = {}
+nodos_no_elegidos_max_pend = []
 
 
 nodo_incial_20_1 = 'A'
@@ -123,23 +126,24 @@ def dibujar_arbol():
 def cerrar_ventana():
     # Detener la ejecución del programa
     ventana.destroy()
+    ventana.quit()
 
 
-def crear_ventana_inicial(*info):
+def crear_ventana_inicial(info):
     print(info)
     # Definir ventana como variable global
     global ventana, nodo_inicial, nodo_final, nodos, distancias, conexiones
-    # nodo_inicial = info["nodo_inicial"]
-    # nodo_final = info["nodo_final"]
-    # nodos = info["nodos"]
-    # distancias = info["distancias"]
-    # conexiones = info["uniones"]
+    nodo_inicial = info["nodo_inicial"]
+    nodo_final = info["nodo_final"]
+    nodos = info["nodos"]
+    distancias = info["distancias"]
+    conexiones = info["uniones"]
 
-    nodo_inicial = nodo_incial_20_1
-    nodo_final = nodo_final_20_1
-    nodos = nodos_20_1
-    distancias = dlr_20_1
-    conexiones = uniones_20_1
+    # nodo_inicial = nodo_incial_20_5
+    # nodo_final = nodo_final_20_5
+    # nodos = nodos_20_5
+    # distancias = dlr_20_5
+    # conexiones = uniones_20_5
 
     # Crear la ventana principal
     ventana = tk.Tk()
@@ -188,7 +192,7 @@ def crear_ventana_inicial(*info):
     label_info.pack(fill="both", expand=True, padx=10, pady=10)
 
     # Configurar la función de cierre de ventana
-    # ventana.protocol("WM_DELETE_WINDOW", cerrar_ventana)
+    ventana.protocol("WM_DELETE_WINDOW", cerrar_ventana)
 
     # Ajustar automáticamente el tamaño de la ventana al contenido
     ventana.update_idletasks()
@@ -215,11 +219,12 @@ def mostrar_ventana_escalada_simple():
     frame_grafico.pack(side="left", fill="both", expand=True)
 
     # Reiniciar la lista de estados_escalada_simple para abrir una ventana nueva
-    estados_escalada_simple = []
-    nuevas_conexiones_escalada_simple = []
+    estados_escalada_simple.clear()
+    nuevas_conexiones_escalada_simple.clear()
     conexiones_escalada_simple = conexiones.copy()
     canvas_escalada_simple = None
     fig_escalada_simple = None
+    nodos_no_elegidos_esc_sim.clear()
 
     # Dibujar el árbol y obtener la figura
     fig_escalada_simple = dibujar_arbol_escalada_simple()
@@ -268,7 +273,7 @@ def mostrar_ventana_escalada_simple():
 
 
 def dibujar_arbol_escalada_simple(fig=None):
-    global G, node_colors, pos, agregar_frames_escalada_simple
+    global G, node_colors, pos, agregar_frames_escalada_simple, nodos_no_elegidos_esc_sim
     if nodo_inicial == nodo_final:
         return mb.showwarning("Se llego al objetivo", "El estado inicial es igual al estado objetivo")
     if len(estados_escalada_simple) == 0:
@@ -327,17 +332,18 @@ def dibujar_arbol_escalada_simple(fig=None):
             agregar_frames_escalada_simple = False
             return fig
 
-        conex_estado_actual = []
         print(f"Estado actual: {estado_actual}")
+
+        conex_estado_actual_esc_sim = []
         for con in conexiones_escalada_simple:
-            if con[0] == estado_actual and con[1] not in estados_escalada_simple:
-                conex_estado_actual.append(con[1])
-            elif con[1] == estado_actual and con[0] not in estados_escalada_simple:
-                conex_estado_actual.append(con[0])
+            if con[0] == estado_actual and con[1] not in estados_escalada_simple and con[1] not in nodos_no_elegidos_esc_sim:
+                conex_estado_actual_esc_sim.append(con[1])
+            elif con[1] == estado_actual and con[0] not in estados_escalada_simple and con[0] not in nodos_no_elegidos_esc_sim:
+                conex_estado_actual_esc_sim.append(con[0])
 
-        print(f"conex al estado actual: {conex_estado_actual}")
+        print(f"conex al estado actual: {conex_estado_actual_esc_sim}")
 
-        if not conex_estado_actual:
+        if not conex_estado_actual_esc_sim:
             ultimo_nodo = estados_escalada_simple[-1]
             node_colors[list(G.nodes()).index(ultimo_nodo)] = 'yellow'
             pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
@@ -351,7 +357,7 @@ def dibujar_arbol_escalada_simple(fig=None):
             return fig
 
         obtener_nodo_alfabeticamente = min(
-            conex_estado_actual, key=lambda x: x)
+            conex_estado_actual_esc_sim, key=lambda x: x)
 
         print(f"nodo alfabeticamente: {obtener_nodo_alfabeticamente}")
 
@@ -372,8 +378,12 @@ def dibujar_arbol_escalada_simple(fig=None):
 
         if distancias[obtener_nodo_alfabeticamente] < distancias[estado_actual]:
             estados_escalada_simple.append(obtener_nodo_alfabeticamente)
+        else:
+            nodos_no_elegidos_esc_sim.append(obtener_nodo_alfabeticamente)
 
         print(f"estados escalada simple: {estados_escalada_simple}")
+
+        print(f"nodos no elegidos: {nodos_no_elegidos_esc_sim}")
 
         nodos_a_graficar = [
             nodo for conexion in nuevas_conexiones_escalada_simple for nodo in conexion]
@@ -456,12 +466,13 @@ def mostrar_ventana_maxima_pendiente():
     frame_grafico.pack(side="left", fill="both", expand=True)
 
     # Reiniciar la lista de estados_maxima_pendiente para abrir una ventana nueva
-    estados_maxima_pendiente = []
-    nuevas_conexiones_maxima_pendiente = []
+    estados_maxima_pendiente.clear()
+    nuevas_conexiones_maxima_pendiente.clear()
     conexiones_maxima_pendiente = conexiones.copy()
     canvas_maxima_pendiente = None
     fig_maxima_pendiente = None
-    succ = []
+    succ.clear()
+    nodos_no_elegidos_max_pend.clear()
 
     # Dibujar el árbol y obtener la figura
     fig_maxima_pendiente = dibujar_arbol_maxima_pendiente()
@@ -510,7 +521,7 @@ def mostrar_ventana_maxima_pendiente():
 
 
 def dibujar_arbol_maxima_pendiente(fig=None):
-    global G, node_colors, pos, agregar_frames_maxima_pendiente
+    global G, node_colors, pos, agregar_frames_maxima_pendiente, nodos_no_elegidos_max_pend
     if nodo_inicial == nodo_final:
         return mb.showwarning("Se llego al objetivo", "El estado inicial es igual al estado objetivo")
     if len(estados_maxima_pendiente) == 0:
@@ -522,7 +533,7 @@ def dibujar_arbol_maxima_pendiente(fig=None):
         # Agregar nodos al grafo
         G.add_nodes_from(nodo_inicial)
 
-        print(nodo_inicial)
+        print(f"nodo inicial: {nodo_inicial} \n")
 
         # Dibujar el gráfico
         pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
@@ -572,11 +583,11 @@ def dibujar_arbol_maxima_pendiente(fig=None):
         conex_estado_actual = []
         print(f"Estado actual: {estado_actual}")
         for con in conexiones_maxima_pendiente:
-            if con[0] == estado_actual and con[1] not in estados_maxima_pendiente:
+            if con[0] == estado_actual and con[1] not in estados_maxima_pendiente and con[1] not in succ:
                 conex_estado_actual.append(con[1])
                 if con[0] == estado_actual and con[1] not in succ:
                     succ.append(con[1])
-            elif con[1] == estado_actual and con[0] not in estados_maxima_pendiente:
+            elif con[1] == estado_actual and con[0] not in estados_maxima_pendiente and con[0] not in succ:
                 conex_estado_actual.append(con[0])
                 if con[1] == estado_actual and con[0] not in succ:
                     succ.append(con[0])
@@ -601,16 +612,33 @@ def dibujar_arbol_maxima_pendiente(fig=None):
 
         print(f'conexiones maxima pendiente: {conexiones_maxima_pendiente}')
 
-        filtered_data = {
-            key: distancias[key] for key in conex_estado_actual if key in distancias}
+        filtered_data = {key: distancias[key]
+                         for key in conex_estado_actual if key in distancias}
 
-        # if not filtered_data:
+        if not filtered_data:
+            ultimo_nodo = estados_maxima_pendiente[-1]
+            node_colors[list(G.nodes()).index(ultimo_nodo)] = 'yellow'
+            pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            nx.draw(G, pos, with_labels=True, node_size=1000, node_color=node_colors,
+                    font_size=12, font_weight='bold', arrows=True, ax=ax)
+            mb.showwarning("Minimo Local", f"El estado {
+                           estado_actual} es un minimo local")
+            agregar_frames_maxima_pendiente = False
+            return fig
+
+        print(f"filtered data: {filtered_data}")
 
         min_key = min(filtered_data, key=filtered_data.get)
 
         if distancias[min_key] < distancias[estado_actual]:
             succ.remove(min_key)
             estados_maxima_pendiente.append(min_key)
+        else:
+            nodos_no_elegidos_max_pend.append(min_key)
+
+        print(f"Nodos no elegidos: {nodos_no_elegidos_max_pend}")
 
         print(f"estados escalada simple: {estados_maxima_pendiente}")
         print(f"sucesores : {succ}")
@@ -673,5 +701,3 @@ def eliminar_frame_maxima_pendiente():
         return mb.showwarning("Error Pasos", "No hay mas pasos para retroceder", parent=ventana)
     frame = frames.pop()
     frame.destroy()
-
-crear_ventana_inicial()

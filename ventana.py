@@ -222,7 +222,7 @@ def estados_aleatorios(heuristica):
         contador_campos_dlr = 0
         posiciones.clear()
 
-        num_nodos = random.randint(1, 7)
+        num_nodos = random.randint(2, 7)
 
         for i in range(num_nodos):
             etiqueta_nodo = chr(65 + i)
@@ -237,6 +237,8 @@ def estados_aleatorios(heuristica):
             label_dlr.grid(row=contador_filas+2, column=1, padx=10, pady=5)
             input_dlr_id = f"input_dlr_{contador_campos_dlr}"
             input_dlr = tk.Entry(ventana, name=input_dlr_id)
+            random_dlr = random.randint(1, 100)
+            input_dlr.insert(0, random_dlr)
             input_dlr.grid(row=contador_filas+2, column=2, padx=10, pady=5)
 
             campos_dlr.append(input_dlr)
@@ -263,7 +265,8 @@ def estados_aleatorios(heuristica):
             # Crear y ubicar hacia que nodos se une el nodo de la fila correspondiente
             label_conex = tk.Label(ventana, text="Uniones:")
             label_conex.grid(row=contador_filas+2, column=9, padx=10, pady=5)
-            label_uniones = tk.Label(ventana, text=f"{nodos[etiqueta_nodo]}")
+            label_uniones_id = f"label_uniones_{etiqueta_nodo}"
+            label_uniones = tk.Label(ventana, text=f"{nodos[etiqueta_nodo]}", name=label_uniones_id)
             label_uniones.grid(row=contador_filas+2,
                                column=10, padx=10, pady=5)
 
@@ -283,6 +286,14 @@ def estados_aleatorios(heuristica):
             # Incrementa el contador campos dlr
             contador_campos_dlr += 1
 
+        # Generar uniones aleatorias entre los nodos
+        for nodo in nodos:
+            posibles_uniones = [n for n in nodos if n != nodo]
+            num_uniones = random.randint(1, len(posibles_uniones))
+            nodos[nodo] = random.sample(posibles_uniones, num_uniones)
+            label_uniones = ventana.nametowidget(f'label_uniones_{nodo}')
+            label_uniones.config(text=f"{nodos[nodo]}")
+
         actualizar_nodo_inicial_final()
         ajustar_ventana()
 
@@ -300,7 +311,7 @@ def estados_aleatorios(heuristica):
         contador_campos_y = 0
         posiciones.clear()
 
-        num_nodos = random.randint(1, 7)
+        num_nodos = random.randint(2, 7)
 
         for i in range(num_nodos):
             etiqueta_nodo = chr(65 + i)
@@ -315,6 +326,8 @@ def estados_aleatorios(heuristica):
             label_x.grid(row=contador_filas+2, column=1, padx=10, pady=5)
             input_x_id = f"input_x_{contador_campos_x}"
             input_x = tk.Entry(ventana, name=input_x_id)
+            random_x = random.randint(1, 100)
+            input_x.insert(0, random_x)
             input_x.grid(row=contador_filas+2, column=2, padx=10, pady=5)
 
             # Agregar el campo de entrada X a la lista de campos_x
@@ -325,6 +338,8 @@ def estados_aleatorios(heuristica):
             label_y.grid(row=contador_filas+2, column=3, padx=10, pady=5)
             input_y_id = f"input_y_{contador_campos_y}"
             input_y = tk.Entry(ventana, name=input_y_id)
+            random_y = random.randint(1, 100)
+            input_y.insert(0, random_y)
             input_y.grid(row=contador_filas+2, column=4, padx=10, pady=5)
 
             # Agregar el campo de entrada Y a la lista de campos_y
@@ -352,7 +367,8 @@ def estados_aleatorios(heuristica):
             # Crear y ubicar hacia que nodos se une el nodo de la fila correspondiente
             label_conex = tk.Label(ventana, text="Uniones:")
             label_conex.grid(row=contador_filas+2, column=9, padx=10, pady=5)
-            label_uniones = tk.Label(ventana, text=f"{nodos[etiqueta_nodo]}")
+            label_uniones_id = f"label_uniones_{etiqueta_nodo}"
+            label_uniones = tk.Label(ventana, text=f"{nodos[etiqueta_nodo]}", name=label_uniones_id)
             label_uniones.grid(row=contador_filas+2,
                                column=10, padx=10, pady=5)
 
@@ -372,6 +388,14 @@ def estados_aleatorios(heuristica):
             # Incrementa el contador campos x e y
             contador_campos_x += 1
             contador_campos_y += 1
+
+        # Generar uniones aleatorias entre los nodos
+        for nodo in nodos:
+            posibles_uniones = [n for n in nodos if n != nodo]
+            num_uniones = random.randint(1, len(posibles_uniones))
+            nodos[nodo] = random.sample(posibles_uniones, num_uniones)
+            label_uniones = ventana.nametowidget(f'label_uniones_{nodo}')
+            label_uniones.config(text=f"{nodos[nodo]}")
 
         actualizar_nodo_inicial_final()
         ajustar_ventana()
