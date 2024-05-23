@@ -47,6 +47,7 @@ campos_y = []
 campos_dlr = []
 
 
+# Agrega y Elimina el nodo de la lista de nodos
 def agregar_nodo(heuristica):
     global contador_filas_dlr, contador_filas_manhattan, nodos
     if heuristica == "dlr":
@@ -86,11 +87,11 @@ def agregar_nodo(heuristica):
                            column=10, padx=10, pady=5)
 
         # Crear y ubicar los botones de agregar y eliminar nodos de la lista de conexiones
-        button_add = tk.Button(ventana, image=plus_icon, command=lambda: plus_clicked(
+        button_add = tk.Button(ventana, image=plus_icon, command=lambda: agregar_conexion(
             nodo_combobox, nodos[etiqueta_nodo], label_uniones, etiqueta_nodo))
         button_add.grid(row=contador_filas_dlr+2, column=5, padx=10, pady=5)
         button_remove = tk.Button(
-            ventana, image=minus_icon, command=lambda: minus_clicked(nodos[etiqueta_nodo], label_uniones))
+            ventana, image=minus_icon, command=lambda: eliminar_conexion(nodos[etiqueta_nodo], label_uniones))
         button_remove.grid(row=contador_filas_dlr+2, column=6, padx=10, pady=5)
 
         # Incrementar el contador de filas
@@ -143,12 +144,12 @@ def agregar_nodo(heuristica):
                            2, column=6, padx=10, pady=5)
 
         # Crear y ubicar los botones de agregar y eliminar nodos de la lista de conexiones
-        button_add = tk.Button(ventana, image=plus_icon, command=lambda: plus_clicked(
+        button_add = tk.Button(ventana, image=plus_icon, command=lambda: agregar_conexion(
             nodo_combobox, nodos[etiqueta_nodo], label_uniones, etiqueta_nodo))
         button_add.grid(row=contador_filas_manhattan +
                         2, column=7, padx=10, pady=5)
         button_remove = tk.Button(
-            ventana, image=minus_icon, command=lambda: minus_clicked(nodos[etiqueta_nodo], label_uniones))
+            ventana, image=minus_icon, command=lambda: eliminar_conexion(nodos[etiqueta_nodo], label_uniones))
         button_remove.grid(row=contador_filas_manhattan +
                            2, column=8, padx=10, pady=5)
 
@@ -173,25 +174,6 @@ def agregar_nodo(heuristica):
         ajustar_ventana()
 
 
-def actualizar_nodo_inicial_final():
-    global nodo_inicial, nodo_final
-    keys = list(nodos.keys())
-    nodo_inicial['values'] = keys
-    nodo_final['values'] = keys
-
-
-def actualizar_comboboxes_dlr():
-    keys = list(nodos.keys())
-    for combobox in comboboxes_dlr:
-        combobox['values'] = keys
-
-
-def actualizar_comboboxes_manhattan():
-    keys = list(nodos.keys())
-    for combobox in comboboxes_manhattan:
-        combobox['values'] = keys
-
-
 def eliminar_nodo():
     global contador_filas
     if contador_filas > 0:
@@ -207,6 +189,29 @@ def eliminar_nodo():
         ventana.geometry("400x200")
 
 
+# Actualiza el combo nodo inicial y final cuando se agregan nuevos nodos
+def actualizar_nodo_inicial_final():
+    global nodo_inicial, nodo_final
+    keys = list(nodos.keys())
+    nodo_inicial['values'] = keys
+    nodo_final['values'] = keys
+
+
+# Actualiza el combo de conexiones de distancia en linea recta
+def actualizar_comboboxes_dlr():
+    keys = list(nodos.keys())
+    for combobox in comboboxes_dlr:
+        combobox['values'] = keys
+
+
+# Actualiza el combo de conexiones de distancia manhattan
+def actualizar_comboboxes_manhattan():
+    keys = list(nodos.keys())
+    for combobox in comboboxes_manhattan:
+        combobox['values'] = keys
+
+
+# Define de manera aleatoria distancias y conexiones a los nodos dependiendo del tipo de heuristica
 def estados_aleatorios(heuristica):
     global contador_filas, nodos, contador_comboboxes
 
@@ -246,43 +251,44 @@ def estados_aleatorios(heuristica):
             # Agrego los inputs a una lista global de inputs
             posiciones[etiqueta_nodo] = [input_dlr]
 
-            # Crear y ubicar el label y combo para los conexiones de los nodos
-            nodos_combo_label = tk.Label(ventana, text="Conexiones:")
-            nodos_combo_label.grid(row=contador_filas+2,
-                                   column=3, padx=10, pady=5)
-            keys = list(nodos.keys())
-            combobox_id = f"combobox_{contador_comboboxes}"
-            nodo_combobox = ttk.Combobox(
-                ventana, values=keys, state="readonly", name=combobox_id)
-            nodo_combobox.grid(row=contador_filas+2, column=4, padx=10, pady=5)
+            # # Crear y ubicar el label y combo para los conexiones de los nodos
+            # nodos_combo_label = tk.Label(ventana, text="Conexiones:")
+            # nodos_combo_label.grid(row=contador_filas+2,
+            #                        column=3, padx=10, pady=5)
+            # keys = list(nodos.keys())
+            # combobox_id = f"combobox_{contador_comboboxes}"
+            # nodo_combobox = ttk.Combobox(
+            #     ventana, values=keys, state="readonly", name=combobox_id)
+            # nodo_combobox.grid(row=contador_filas+2, column=4, padx=10, pady=5)
 
-            # Agregar el Combobox recién creado a la lista global de Comboboxes
-            comboboxes_dlr.append(nodo_combobox)
+            # # Agregar el Combobox recién creado a la lista global de Comboboxes
+            # comboboxes_dlr.append(nodo_combobox)
 
-            # Actualizar todos los combos de conexión de los nodos
-            actualizar_comboboxes_dlr()
+            # # Actualizar todos los combos de conexión de los nodos
+            # actualizar_comboboxes_dlr()
 
             # Crear y ubicar hacia que nodos se une el nodo de la fila correspondiente
             label_conex = tk.Label(ventana, text="Uniones:")
-            label_conex.grid(row=contador_filas+2, column=9, padx=10, pady=5)
+            label_conex.grid(row=contador_filas+2, column=3, padx=10, pady=5)
             label_uniones_id = f"label_uniones_{etiqueta_nodo}"
-            label_uniones = tk.Label(ventana, text=f"{nodos[etiqueta_nodo]}", name=label_uniones_id)
+            label_uniones = tk.Label(
+                ventana, text=f"{nodos[etiqueta_nodo]}", name=label_uniones_id)
             label_uniones.grid(row=contador_filas+2,
-                               column=10, padx=10, pady=5)
+                               column=4, padx=10, pady=5)
 
-            # Crear y ubicar los botones de agregar y eliminar nodos de la lista de conexiones
-            button_add = tk.Button(ventana, image=plus_icon, command=lambda combobox=nodo_combobox, conexiones=nodos[etiqueta_nodo], label_uniones=label_uniones, etiqueta_nodo=etiqueta_nodo: plus_clicked(
-                combobox, conexiones, label_uniones, etiqueta_nodo))
-            button_add.grid(row=contador_filas+2, column=5, padx=10, pady=5)
+            # # Crear y ubicar los botones de agregar y eliminar nodos de la lista de conexiones
+            # button_add = tk.Button(ventana, image=plus_icon, command=lambda combobox=nodo_combobox, conexiones=nodos[etiqueta_nodo], label_uniones=label_uniones, etiqueta_nodo=etiqueta_nodo: agregar_conexion(
+            #     combobox, conexiones, label_uniones, etiqueta_nodo))
+            # button_add.grid(row=contador_filas+2, column=5, padx=10, pady=5)
 
-            button_remove = tk.Button(
-                ventana, image=minus_icon, command=lambda conexiones=nodos[etiqueta_nodo], label_uniones=label_uniones: minus_clicked(conexiones, label_uniones))
-            button_remove.grid(row=contador_filas+2, column=6, padx=10, pady=5)
+            # button_remove = tk.Button(
+            #     ventana, image=minus_icon, command=lambda conexiones=nodos[etiqueta_nodo], label_uniones=label_uniones: eliminar_conexion(conexiones, label_uniones))
+            # button_remove.grid(row=contador_filas+2, column=6, padx=10, pady=5)
 
             # Incrementar el contador de filas
             contador_filas += 1
             # Incrementa el contador de Comboboxes
-            contador_comboboxes += 1
+            # contador_comboboxes += 1
             # Incrementa el contador campos dlr
             contador_campos_dlr += 1
 
@@ -348,43 +354,44 @@ def estados_aleatorios(heuristica):
             # Agrego los inputs a una lista global de inputs
             posiciones[etiqueta_nodo] = [input_x, input_y]
 
-            # Crear y ubicar el label y combo para los conexiones de los nodos
-            nodos_combo_label = tk.Label(ventana, text="Conexiones:")
-            nodos_combo_label.grid(row=contador_filas+2,
-                                   column=5, padx=10, pady=5)
-            keys = list(nodos.keys())
-            combobox_id = f"combobox_{contador_comboboxes}"
-            nodo_combobox = ttk.Combobox(
-                ventana, values=keys, state="readonly", name=combobox_id)
-            nodo_combobox.grid(row=contador_filas+2, column=6, padx=10, pady=5)
+            # # Crear y ubicar el label y combo para los conexiones de los nodos
+            # nodos_combo_label = tk.Label(ventana, text="Conexiones:")
+            # nodos_combo_label.grid(row=contador_filas+2,
+            #                        column=5, padx=10, pady=5)
+            # keys = list(nodos.keys())
+            # combobox_id = f"combobox_{contador_comboboxes}"
+            # nodo_combobox = ttk.Combobox(
+            #     ventana, values=keys, state="readonly", name=combobox_id)
+            # nodo_combobox.grid(row=contador_filas+2, column=6, padx=10, pady=5)
 
-            # Agregar el Combobox recién creado a la lista global de Comboboxes
-            comboboxes_manhattan.append(nodo_combobox)
+            # # Agregar el Combobox recién creado a la lista global de Comboboxes
+            # comboboxes_manhattan.append(nodo_combobox)
 
-            # Actualizar todos los combos de conexión de los nodos
-            actualizar_comboboxes_manhattan()
+            # # Actualizar todos los combos de conexión de los nodos
+            # actualizar_comboboxes_manhattan()
 
             # Crear y ubicar hacia que nodos se une el nodo de la fila correspondiente
             label_conex = tk.Label(ventana, text="Uniones:")
-            label_conex.grid(row=contador_filas+2, column=9, padx=10, pady=5)
+            label_conex.grid(row=contador_filas+2, column=5, padx=10, pady=5)
             label_uniones_id = f"label_uniones_{etiqueta_nodo}"
-            label_uniones = tk.Label(ventana, text=f"{nodos[etiqueta_nodo]}", name=label_uniones_id)
+            label_uniones = tk.Label(
+                ventana, text=f"{nodos[etiqueta_nodo]}", name=label_uniones_id)
             label_uniones.grid(row=contador_filas+2,
-                               column=10, padx=10, pady=5)
+                               column=6, padx=10, pady=5)
 
-            # Crear y ubicar los botones de agregar y eliminar nodos de la lista de conexiones
-            button_add = tk.Button(ventana, image=plus_icon, command=lambda combobox=nodo_combobox, conexiones=nodos[etiqueta_nodo], label_uniones=label_uniones, etiqueta_nodo=etiqueta_nodo: plus_clicked(
-                combobox, conexiones, label_uniones, etiqueta_nodo))
-            button_add.grid(row=contador_filas+2, column=7, padx=10, pady=5)
+            # # Crear y ubicar los botones de agregar y eliminar nodos de la lista de conexiones
+            # button_add = tk.Button(ventana, image=plus_icon, command=lambda combobox=nodo_combobox, conexiones=nodos[etiqueta_nodo], label_uniones=label_uniones, etiqueta_nodo=etiqueta_nodo: agregar_conexion(
+            #     combobox, conexiones, label_uniones, etiqueta_nodo))
+            # button_add.grid(row=contador_filas+2, column=7, padx=10, pady=5)
 
-            button_remove = tk.Button(
-                ventana, image=minus_icon, command=lambda conexiones=nodos[etiqueta_nodo], label_uniones=label_uniones: minus_clicked(conexiones, label_uniones))
-            button_remove.grid(row=contador_filas+2, column=8, padx=10, pady=5)
+            # button_remove = tk.Button(
+            #     ventana, image=minus_icon, command=lambda conexiones=nodos[etiqueta_nodo], label_uniones=label_uniones: eliminar_conexion(conexiones, label_uniones))
+            # button_remove.grid(row=contador_filas+2, column=8, padx=10, pady=5)
 
             # Incrementar el contador de filas
             contador_filas += 1
             # Incrementa el contador de Comboboxes
-            contador_comboboxes += 1
+            # contador_comboboxes += 1
             # Incrementa el contador campos x e y
             contador_campos_x += 1
             contador_campos_y += 1
@@ -563,6 +570,7 @@ def distancia_manhattan_aleatoria():
     ajustar_ventana()
 
 
+# Limpia la interfaz e reinicializa todas las variables globales
 def limpiar_ventana():
     global contador_filas, nodos, contador_campos_dlr, contador_filas_manhattan, nodo_inicial, nodo_final, contador_filas_dlr, posiciones, comboboxes_dlr
     global comboboxes_manhattan, contador_comboboxes, contador_campos_x, contador_campos_y, campos_x, campos_y, campos_dlr
@@ -592,13 +600,13 @@ def limpiar_ventana():
     ventana.geometry("400x200")
 
 
+# Ajustar la ventana automáticamente
 def ajustar_ventana():
-    # Ajustar la ventana automáticamente
     ventana.update_idletasks()
     ventana.geometry("")
 
 
-def plus_clicked(nodo_combobox, conexiones, label_uniones, nodo_actual):
+def agregar_conexion(nodo_combobox, conexiones, label_uniones, nodo_actual):
     selected_value = nodo_combobox.get()
     if selected_value == "":
         mb.showwarning(
@@ -614,7 +622,7 @@ def plus_clicked(nodo_combobox, conexiones, label_uniones, nodo_actual):
         label_uniones.config(text=conexiones)
 
 
-def minus_clicked(conexiones, label_uniones):
+def eliminar_conexion(conexiones, label_uniones):
     if len(conexiones) > 0:
         conexiones.pop()
         label_uniones.config(text=conexiones)
@@ -623,6 +631,7 @@ def minus_clicked(conexiones, label_uniones):
             "Danger", "No hay mas nodos en la lista!", parent=ventana)
 
 
+# Obtener los datos de manhattan
 def obtener_datos_manhattan_manual():
     if nodo_inicial.get() == "" or nodo_final.get() == "" or nodo_inicial.get() == nodo_final.get():
         return mb.showwarning("Error Nodo Inicial o Final", "Los combos de nodo inicial o final no pueden estar vacios o contener el mismo nodo", parent=ventana)
@@ -688,6 +697,7 @@ def obtener_datos_manhattan_aleatorios():
     crear_ventana_inicial(info=info)
 
 
+# Obtener los datos de distancia en linea recta
 def obtener_datos_dlr_manual():
     print("dlr manual")
 
@@ -754,8 +764,8 @@ def obtener_datos_dlr_aleatorios():
     crear_ventana_inicial(info=info)
 
 
+# Cerrar todas las ventanas y salir del programa
 def cerrar_ventana():
-    # Cerrar todas las ventanas y salir del programa
     ventana.quit()
     ventana.destroy()
     sys.exit()

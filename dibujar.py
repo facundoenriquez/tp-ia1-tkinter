@@ -32,7 +32,7 @@ canvas_maxima_pendiente = None
 fig_maxima_pendiente = None
 agregar_frames_maxima_pendiente = True
 succ = []
-pasos_escalada_maxima_pendiente = 0
+pasos_maxima_pendiente = 0
 niveles_max_pend = {}
 nodos_no_elegidos_max_pend = []
 
@@ -139,11 +139,11 @@ def crear_ventana_inicial(info):
     distancias = info["distancias"]
     conexiones = info["uniones"]
 
-    # nodo_inicial = nodo_incial_20_5
-    # nodo_final = nodo_final_20_5
-    # nodos = nodos_20_5
-    # distancias = dlr_20_5
-    # conexiones = uniones_20_5
+    nodo_inicial = nodo_incial_20_5
+    nodo_final = nodo_final_20_5
+    nodos = nodos_20_5
+    distancias = dlr_20_5
+    conexiones = uniones_20_5
 
     # Crear la ventana principal
     ventana = tk.Tk()
@@ -251,9 +251,6 @@ def mostrar_ventana_escalada_simple():
     frame_botones.pack(side="top", fill="both")
 
     # Botón "Paso a Paso"
-    boton_paso_a_paso = ttk.Button(
-        frame_botones, text="Anterior", command=eliminar_frame_escalada_simple)
-    boton_paso_a_paso.pack(fill="x", padx=10, pady=10)
     boton_paso_a_paso = ttk.Button(
         frame_botones, text="Siguiente", command=lambda: insertar_frame_escalada_simple(frame_contenido))
     boton_paso_a_paso.pack(fill="x", padx=10, pady=10)
@@ -414,7 +411,7 @@ def dibujar_arbol_escalada_simple(fig=None):
 
 
 def insertar_frame_escalada_simple(frame_contenido):
-    global fig_escalada_simple, canvas_escalada_simple, agregar_frames_escalada_simple
+    global fig_escalada_simple, canvas_escalada_simple, agregar_frames_escalada_simple, pasos_escalada_simple
 
     if agregar_frames_escalada_simple:
         # Frame para los botones
@@ -422,9 +419,10 @@ def insertar_frame_escalada_simple(frame_contenido):
         frames.append(frame_info)
         frame_info.pack(side="top", fill="both")
 
+        pasos_escalada_simple += 1
+
         # Obtener información del árbol
-        info = f"Paso: {pasos_escalada_simple +
-                        1} \n Estados:\n- {estados_escalada_simple}"
+        info = f"Paso: {pasos_escalada_simple} \n Estados:\n- {estados_escalada_simple}"
 
         # Label para la información adicional
         label_info = tk.Label(frame_info, text=info,
@@ -437,13 +435,6 @@ def insertar_frame_escalada_simple(frame_contenido):
     # Actualizar la figura en el canvas
     canvas_escalada_simple.figure = fig_escalada_simple
     canvas_escalada_simple.draw()
-
-
-def eliminar_frame_escalada_simple():
-    if len(frames) == 0:
-        return mb.showwarning("Error Pasos", "No hay mas pasos para retroceder", parent=ventana)
-    frame = frames.pop()
-    frame.destroy()
 
 
 # FUNCIONES DE MAXIMA PENDIENTE
@@ -499,9 +490,6 @@ def mostrar_ventana_maxima_pendiente():
     frame_botones.pack(side="top", fill="both")
 
     # Botón "Paso a Paso"
-    boton_paso_a_paso = ttk.Button(
-        frame_botones, text="Anterior", command=eliminar_frame_maxima_pendiente)
-    boton_paso_a_paso.pack(fill="x", padx=10, pady=10)
     boton_paso_a_paso = ttk.Button(
         frame_botones, text="Siguiente", command=lambda: insertar_frame_maxima_pendiente(frame_contenido))
     boton_paso_a_paso.pack(fill="x", padx=10, pady=10)
@@ -672,7 +660,7 @@ def dibujar_arbol_maxima_pendiente(fig=None):
 
 
 def insertar_frame_maxima_pendiente(frame_contenido):
-    global fig_maxima_pendiente, canvas_maxima_pendiente, agregar_frames_maxima_pendiente
+    global fig_maxima_pendiente, canvas_maxima_pendiente, agregar_frames_maxima_pendiente, pasos_maxima_pendiente
 
     if agregar_frames_maxima_pendiente:
         # Frame para los botones
@@ -680,8 +668,10 @@ def insertar_frame_maxima_pendiente(frame_contenido):
         frames.append(frame_info)
         frame_info.pack(side="top", fill="both")
 
+        pasos_maxima_pendiente += 1
+
         # Obtener información del árbol
-        info = f"Estados:\n- {estados_maxima_pendiente}"
+        info = f"Paso: {pasos_maxima_pendiente} \n Estados:\n- {estados_maxima_pendiente}"
 
         # Label para la información adicional
         label_info = tk.Label(frame_info, text=info,
@@ -694,10 +684,3 @@ def insertar_frame_maxima_pendiente(frame_contenido):
     # Actualizar la figura en el canvas
     canvas_maxima_pendiente.figure = fig_maxima_pendiente
     canvas_maxima_pendiente.draw()
-
-
-def eliminar_frame_maxima_pendiente():
-    if len(frames) == 0:
-        return mb.showwarning("Error Pasos", "No hay mas pasos para retroceder", parent=ventana)
-    frame = frames.pop()
-    frame.destroy()
