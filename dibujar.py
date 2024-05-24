@@ -23,6 +23,7 @@ fig_escalada_simple = None
 agregar_frames_escalada_simple = True
 pasos_escalada_simple = 0
 nodos_no_elegidos_esc_sim = []
+frames_escalada_simple = []
 
 # Datos para maxima pendiente
 estados_maxima_pendiente = []
@@ -35,6 +36,7 @@ succ = []
 pasos_maxima_pendiente = 0
 niveles_max_pend = {}
 nodos_no_elegidos_max_pend = []
+frames_maxima_pendiente = []
 
 
 nodo_incial_20_1 = 'A'
@@ -139,11 +141,11 @@ def crear_ventana_inicial(info):
     distancias = info["distancias"]
     conexiones = info["uniones"]
 
-    nodo_inicial = nodo_incial_20_5
-    nodo_final = nodo_final_20_5
-    nodos = nodos_20_5
-    distancias = dlr_20_5
-    conexiones = uniones_20_5
+    # nodo_inicial = nodo_incial_20_5
+    # nodo_final = nodo_final_20_5
+    # nodos = nodos_20_5
+    # distancias = dlr_20_5
+    # conexiones = uniones_20_5
 
     # Crear la ventana principal
     ventana = tk.Tk()
@@ -314,19 +316,31 @@ def dibujar_arbol_escalada_simple(fig=None):
             print(conexiones)
 
             # Usa la función esta_en_camino para determinar los colores de los edges
-            edge_colors = [
-                'lightblue' if con in conexiones else 'black' for con in nuevas_conexiones_escalada_simple]
+            # edge_colors = [
+            #     'lightblue' if con in conexiones else 'black' for con in nuevas_conexiones_escalada_simple]
 
-            print(edge_colors)
+            # print(edge_colors)
 
             pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
             fig = plt.figure()
             ax = fig.add_subplot(111)
-            nx.draw(G, pos, with_labels=True, node_size=1000, node_color=node_colors, edge_color=edge_colors,
+            nx.draw(G, pos, with_labels=True, node_size=1000, node_color=node_colors,
                     font_size=12, font_weight='bold', arrows=True, ax=ax)
+            
+            # Añadir un subtrama en la parte superior de la figura para mostrar el texto
+            ax_inset = fig.add_axes([0.1, 0.95, 0.8, 0.05])  # [left, bottom, width, height]
+            ax_inset.axis('off')  # Ocultar los ejes de la subtrama
+            camino_texto = f"Camino más corto: {estados_escalada_simple}"
+            ax_inset.text(0.5, 0.5, camino_texto, transform=ax_inset.transAxes, fontsize=10, va='center', ha='center')
+
+
             mb.showwarning("Objetivo Encontrado", f"El estado {
                            estado_actual} es el objetivo")
             agregar_frames_escalada_simple = False
+
+            ultimo_frame = frames_escalada_simple[-1]
+            ultimo_frame.configure(background="lightgreen")
+
             return fig
 
         print(f"Estado actual: {estado_actual}")
@@ -415,14 +429,14 @@ def insertar_frame_escalada_simple(frame_contenido):
 
     if agregar_frames_escalada_simple:
         # Frame para los botones
-        frame_info = ttk.Frame(frame_contenido, borderwidth=2, relief="solid")
-        frames.append(frame_info)
-        frame_info.pack(side="top", fill="both")
+        frame_info = tk.Frame(frame_contenido, borderwidth=1, relief="solid")
+        frames_escalada_simple.append(frame_info)
+        frame_info.pack(side="top", fill="both", pady=1)
 
         pasos_escalada_simple += 1
 
         # Obtener información del árbol
-        info = f"Paso: {pasos_escalada_simple} \n Estados:\n- {estados_escalada_simple}"
+        info = f"Paso: {pasos_escalada_simple} \n Estados: \n {estados_escalada_simple}"
 
         # Label para la información adicional
         label_info = tk.Label(frame_info, text=info,
@@ -553,19 +567,31 @@ def dibujar_arbol_maxima_pendiente(fig=None):
             print(conexiones)
 
             # Usa la función esta_en_camino para determinar los colores de los edges
-            edge_colors = [
-                'lightblue' if con in conexiones else 'black' for con in nuevas_conexiones_maxima_pendiente]
+            # edge_colors = [
+            #     'lightblue' if con in conexiones else 'black' for con in nuevas_conexiones_maxima_pendiente]
 
-            print(edge_colors)
+            # print(edge_colors)
 
             pos = nx.spring_layout(G, seed=1)  # Posiciones de los nodos
             fig = plt.figure()
             ax = fig.add_subplot(111)
-            nx.draw(G, pos, with_labels=True, node_size=1000, node_color=node_colors, edge_color=edge_colors,
+            nx.draw(G, pos, with_labels=True, node_size=1000, node_color=node_colors,
                     font_size=12, font_weight='bold', arrows=True, ax=ax)
+            
+            # Añadir un subtrama en la parte superior de la figura para mostrar el texto
+            ax_inset = fig.add_axes([0.1, 0.95, 0.8, 0.05])  # [left, bottom, width, height]
+            ax_inset.axis('off')  # Ocultar los ejes de la subtrama
+            camino_texto = f"Camino más corto: {estados_maxima_pendiente}"
+            ax_inset.text(0.5, 0.5, camino_texto, transform=ax_inset.transAxes, fontsize=10, va='center', ha='center')
+
+
             mb.showwarning("Objetivo Encontrado", f"El estado {
                            estado_actual} es el objetivo")
             agregar_frames_maxima_pendiente = False
+
+            ultimo_frame = frames_maxima_pendiente[-1]
+            ultimo_frame.configure(background="lightgreen")
+
             return fig
 
         conex_estado_actual = []
@@ -664,9 +690,9 @@ def insertar_frame_maxima_pendiente(frame_contenido):
 
     if agregar_frames_maxima_pendiente:
         # Frame para los botones
-        frame_info = ttk.Frame(frame_contenido, borderwidth=2, relief="solid")
-        frames.append(frame_info)
-        frame_info.pack(side="top", fill="both")
+        frame_info = tk.Frame(frame_contenido, borderwidth=1, relief="solid")
+        frames_maxima_pendiente.append(frame_info)
+        frame_info.pack(side="top", fill="both", pady=1)
 
         pasos_maxima_pendiente += 1
 
