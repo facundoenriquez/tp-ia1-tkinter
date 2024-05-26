@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-from PIL import Image, ImageTk
 import tkinter.messagebox as mb
 from distancias import distancias_manhattan, distancias_linea_recta
 from conexiones_nodos import uniones_nodos
@@ -46,7 +45,6 @@ campos_x = []
 campos_y = []
 campos_dlr = []
 
-
 # Agrega y Elimina el nodo de la lista de nodos
 def agregar_nodo(heuristica):
     global contador_filas_dlr, contador_filas_manhattan, nodos
@@ -87,11 +85,11 @@ def agregar_nodo(heuristica):
                            column=10, padx=10, pady=5)
 
         # Crear y ubicar los botones de agregar y eliminar nodos de la lista de conexiones
-        button_add = tk.Button(ventana, image=plus_icon, command=lambda: agregar_conexion(
+        button_add = tk.Button(ventana, text=" + ", command=lambda: agregar_conexion(
             nodo_combobox, nodos[etiqueta_nodo], label_uniones, etiqueta_nodo))
         button_add.grid(row=contador_filas_dlr+2, column=5, padx=10, pady=5)
         button_remove = tk.Button(
-            ventana, image=minus_icon, command=lambda: eliminar_conexion(nodos[etiqueta_nodo], label_uniones))
+            ventana, text=" - ", command=lambda: eliminar_conexion(nodos[etiqueta_nodo], label_uniones))
         button_remove.grid(row=contador_filas_dlr+2, column=6, padx=10, pady=5)
 
         # Incrementar el contador de filas
@@ -144,12 +142,12 @@ def agregar_nodo(heuristica):
                            2, column=6, padx=10, pady=5)
 
         # Crear y ubicar los botones de agregar y eliminar nodos de la lista de conexiones
-        button_add = tk.Button(ventana, image=plus_icon, command=lambda: agregar_conexion(
+        button_add = tk.Button(ventana, text=" + ", command=lambda: agregar_conexion(
             nodo_combobox, nodos[etiqueta_nodo], label_uniones, etiqueta_nodo))
         button_add.grid(row=contador_filas_manhattan +
                         2, column=7, padx=10, pady=5)
         button_remove = tk.Button(
-            ventana, image=minus_icon, command=lambda: eliminar_conexion(nodos[etiqueta_nodo], label_uniones))
+            ventana, text=" - ", command=lambda: eliminar_conexion(nodos[etiqueta_nodo], label_uniones))
         button_remove.grid(row=contador_filas_manhattan +
                            2, column=8, padx=10, pady=5)
 
@@ -809,18 +807,6 @@ sub_menu_manhattan.add_command(
     label="Manual", command=distancia_manhattan_manual)
 sub_menu_manhattan.add_command(
     label="Aleatorio", command=distancia_manhattan_aleatoria)
-
-# Cargar Imagenes
-plus_image = Image.open("plus.png")
-minus_image = Image.open("minus.png")
-
-# Redimensionar imagenes
-plus_image = plus_image.resize((15, 15))
-minus_image = minus_image.resize((15, 15))
-
-# Convertir imagenes a objectos Tkinter PhotoImage
-plus_icon = ImageTk.PhotoImage(plus_image)
-minus_icon = ImageTk.PhotoImage(minus_image)
 
 # Agregar el menu a la ventana
 ventana.config(menu=menu_principal)

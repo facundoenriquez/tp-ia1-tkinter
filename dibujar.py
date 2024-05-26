@@ -204,7 +204,7 @@ def crear_ventana_inicial(info):
 
 # FUNCIONES DE ESCALADA SIMPLE
 def mostrar_ventana_escalada_simple():
-    global estados_escalada_simple, nuevas_conexiones_escalada_simple, conexiones_escalada_simple, canvas_escalada_simple, fig_escalada_simple
+    global estados_escalada_simple, nuevas_conexiones_escalada_simple, conexiones_escalada_simple, canvas_escalada_simple, fig_escalada_simple, pasos_escalada_simple
 
     ventana_secundaria = tk.Toplevel()
     ventana_secundaria.title("Escalada Simple")
@@ -227,6 +227,8 @@ def mostrar_ventana_escalada_simple():
     canvas_escalada_simple = None
     fig_escalada_simple = None
     nodos_no_elegidos_esc_sim.clear()
+    frames_escalada_simple.clear()
+    pasos_escalada_simple = 0
 
     # Dibujar el árbol y obtener la figura
     fig_escalada_simple = dibujar_arbol_escalada_simple()
@@ -453,7 +455,7 @@ def insertar_frame_escalada_simple(frame_contenido):
 
 # FUNCIONES DE MAXIMA PENDIENTE
 def mostrar_ventana_maxima_pendiente():
-    global estados_maxima_pendiente, nuevas_conexiones_maxima_pendiente, conexiones_maxima_pendiente, canvas_maxima_pendiente, fig_maxima_pendiente, succ
+    global estados_maxima_pendiente, nuevas_conexiones_maxima_pendiente, conexiones_maxima_pendiente, canvas_maxima_pendiente, fig_maxima_pendiente, succ, pasos_maxima_pendiente
 
     # Crear la ventana secundaria
     ventana_secundaria = tk.Toplevel()
@@ -478,6 +480,8 @@ def mostrar_ventana_maxima_pendiente():
     fig_maxima_pendiente = None
     succ.clear()
     nodos_no_elegidos_max_pend.clear()
+    frames_maxima_pendiente.clear()
+    pasos_maxima_pendiente = 0
 
     # Dibujar el árbol y obtener la figura
     fig_maxima_pendiente = dibujar_arbol_maxima_pendiente()
